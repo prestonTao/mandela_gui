@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>连接远程节点设置</title>
+    <script>window.$ = window.jQuery = require('./js/jquery-1.12.4.min.js');</script>
+    <!-- <script type="text/javascript" src="./js/jquery-3.4.1.min.js"></script> -->
+    <script type="text/javascript" src="./Semantic-UI-CSS-2.4/semantic.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="./Semantic-UI-CSS-2.4/semantic.min.css">
+    <style type="text/css">
+    body {
+      background-color: #DADADA;
+    }
+    body > .grid {
+      height: 100%;
+    }
+    .image {
+      margin-top: -100px;
+    }
+    .column {
+      max-width: 450px;
+    }
+    </style>
+    <script>
+    //在渲染器进程 (网页) 中。
+    // const { ipcRenderer } = require('electron')
+    const ipc = require('electron').ipcRenderer;
+    
+
+    // ipc.on('show_first_page', (event, arg) => {
+    //   console.log(arg) // prints "pong"
+    // })
+
+    $(document).ready(function() {
+  	    $("#first_page_bt").click(function(){
+            // api.register("11111111");
+            // login.login("112233445566");
+            // console.log(ipcRenderer.sendSync('synchronous-message', 'ping')) // prints "pong"
+            // console.log("clent 123") // prints
+            ipc.send('show_first_page', 'ping')
+
+        });
+
+        
+        $("#connectBT").click(function(){
+            var ip = $("#input_ip").val();
+            var port = $("#input_port").val();
+            var rpcUser = $("#input_rpcuser").val();
+            var rpcPwd = $("#input_rpcpwd").val();
+            var config = {
+                WebAddr:ip,
+                WebPort:port,
+                RpcUser:rpcUser,
+                RpcPassword:rpcPwd,
+            };
+            ipc.send('connect_remote_node', config)
+            return false
+        });
+
+        $('.ui.form').form({
+            fields: {
+                email: {
+                    identifier  : 'email',
+                    rules: [
+                        {
+                            type   : 'empty',
+                            prompt : 'Please enter your e-mail'
+                        },
+                        {
+                            type   : 'email',
+                            prompt : 'Please enter a valid e-mail'
+                        }
+                    ]
+                },
+                password: {
+                    identifier  : 'password',
+                    rules: [
+                        {
+                            type   : 'empty',
+                            prompt : 'Please enter your password'
+                        },
+                        {
+                            type   : 'length[6]',
+                            prompt : 'Your password must be at least 6 characters'
+                        }
+                    ]
+                }
+            }
+        });
+    });
+  </script>
+</head>
+<body>
+
+
+<div class="ui middle aligned center aligned grid">
+    <div class="column">
+        <h2 class="ui teal image header">
+        <!-- <img src="./Login Example - Semantic_files/logo.png" class="image"> -->
+            <div class="content">
+            连接远程节点设置
+            </div>
+        </h2>
+
+
+
+
+
+
+<form class="ui form">
+<div class="ui stacked segment">
+
+        <div class="field">
+    <label>远程节点地址</label>
+    <div class="fields">
+      <div class="twelve wide field">
+        <div class="ui left icon input">
+                    <i class="desktop icon"></i>
+        <input type="text" id="input_ip" name="shipping[address]" placeholder=" IP Address" value="127.0.0.1">
+        </div>
+      </div>
+      <div class="one wide inline field">
+          <h2><label>:</label></h2>
+      </div>
+      <div class="three wide field">
+        <input type="text" id="input_port" name="shipping[address-2]" placeholder="Port" value="2080">
+      </div>
+    </div>
+  </div>
+
+
+
+
+
+
+
+              <div class="field">
+    <label>RPC连接用户名和密码</label>
+    <div class="two fields">
+      <div class="field">
+        <div class="ui left icon input">
+            <i class="user icon"></i>
+        <input type="text" id="input_rpcuser" name="shipping[first-name]" placeholder="RPC Name" value="test">
+      </div>
+      </div>
+      <div class="field">
+        <div class="ui left icon input">
+            <i class="lock icon"></i>
+        <input type="text" id="input_rpcpwd" name="shipping[last-name]" placeholder="RPC Password" value="testp">
+      </div>
+      </div>
+    </div>
+  </div>
+
+
+
+
+
+
+        <div id="connectBT" class="ui fluid large teal submit button">连接</div>
+</div>
+<div class="ui error message"></div>
+</form>
+
+
+
+
+
+
+
+
+        <div class="ui message">
+            <a id="first_page_bt" href="./">启动本地节点</a>
+        </div>
+    </div>
+</div>
+
+
+
+
+</body>
+</html>

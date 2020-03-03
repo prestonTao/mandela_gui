@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8"/>
+    <title>存储</title>
+<!--     <script>
+    window.nodeRequire = require;
+    delete window.require;
+    delete window.exports;
+    delete window.module;
+    </script> -->
+ 
+    <script>window.$ = window.jQuery = require('../js/jquery-1.12.4.min.js');</script>
+    <!-- <script type="text/javascript" src="./js/Calculator.min.js"></script> -->
+    <script type="text/javascript" src="../Semantic-UI-CSS-2.4/semantic.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="../Semantic-UI-CSS-2.4/semantic.min.css">
+    <script type="text/javascript" src="../js/ajaxfileupload.js"></script>
+
+    <style type="text/css">
+        .mouseover{
+            background: rgb(245,245,245);
+        }
+        .selected{
+            /*border:red solid 1px;*/
+            background: rgb(222,222,222);
+        }
+        #content .card{
+            box-shadow:0 0 0 0;
+        }
+    </style>
+
+    <script type="text/javascript">
+        var config = null;
+        var opt = null;
+        var url = "";
+        var oldSelectedFiles = null;
+        const ipcRenderer = require('electron').ipcRenderer;
+
+        
+        function countSecond(){　
+            // setTimeout("countSecond()", 1000)
+            $.ajax({ url: "http://"+config.WebAddr+":"+config.WebPort+"/rpc",
+            type:"POST",
+            headers:{'Content-Type':'application/json;charset=utf8','user':config.RpcUser,"password":config.RpcPassword},
+            data:`{"method":"getinfo"}`,
+            // async:false,
+            dateType:'json',
+            // context: document.body, 
+            success: function(data){
+                // $(this).addClass("done");
+                console.log(data);
+                console.log(data.result.CurrentBlock);
+                console.log(data.result.HighestBlock);
+
+                // $("#chain_height").text(data.result.CurrentBlock);
+                // $("#new_height").text(data.result.HighestBlock);
+                // var calculator=new Calculator();
+                // var x = calculator.divide(data.result.balance, 100000000);
+                // $("#chain_balance").text(x);
+
+
+            }});
+        }
+
+        function postNode(params,callFun){
+            console.log(params);
+            $.ajax({
+                url: "http://"+config.WebAddr+":"+config.WebPort+"/rpc",
+                type:"POST",
+                secureuri:false,
+                headers:{'Content-Type':'application/json;charset=utf8','user':config.RpcUser,"password":config.RpcPassword},
+                data:params,
+                // async:false,
+                dateType:'json',
+                success:callFun
+            });
+        }
+
+        /*
+            刷新存储空间大小
+        */  
+        function flashStoreSize(){
+            postNode(`{"method":"getspacesize"}`,function(data){
+                console.log(data);
+                var percent = data.result.UseSize / data.result.TotalSize * 100;
+                $('#store_size').progress("set percent", percent);
+                $('#store_size').progress("set label", data.result.UseSize/1024/1024/1024 + "G/" + data.result.TotalSize/1024/1024/1024 + "G");
+            });
+        }
+
+
+    
+        $(document).ready(function() {
+            config = ipcRenderer.sendSync('send_config', 'ping');
+            opt = {
+                url: "http://"+config.WebAddr+":"+config.WebPort+"/rpc",
+                type:"POST",
+                headers:{'Content-Type':'application/json;charset=utf8','user':config.RpcUser,"password":config.RpcPassword},
+                data:`{"method":"getinfo"}`,
+                // async:false,
+                dateType:'json'
+            }
+            // countSecond();
+            flashStoreSize();
+
+            //给文件添加点击事件
+            $("#content .card").on("click",function(event){
+                console.log("card");
+                if(oldSelectedFiles != null){
+
+                    for(j = 0,len=oldSelectedFiles.length; j < len; j++) {
+                       // $(oldSelectedFiles[j]).removeClass();
+                    }
+                }
+                oldSelectedFile = this;
+                //清空之前的选择文件样式
+                var cards = $(".selectcard");
+                for(i=0,len=cards.length; i < len; i++){
+                    $(cards[i]).removeClass("selectcard");
+                }
+                var cards = $(".selected");
+                for(i=0,len=cards.length; i < len; i++){
+                    $(cards[i]).removeClass("selected");
+                }
+                //给新选中的文件添加样式
+                $(this).addClass("selectcard");
+                $(".selectcard .header").addClass("selected");
+            });
+
+            //给文件添加鼠标mouseover事件
+            $("#content .card").mouseover(function(event){
+                $(this).addClass("mouseovercard");
+                $(".mouseovercard .header").addClass("mouseover");
+            });
+
+            //给文件添加鼠标mouseover事件
+            $("#content .card").mouseout(function(event){
+                $(".mouseovercard .header").removeClass("mouseover");
+                $(".mouseovercard").removeClass("mouseovercard");
+            });
+
+
+
+            //增加空间
+            $("#add_size_bt").on('click', function() {
+                var path = ipcRenderer.sendSync('open_directory_dialog', 'openDirectory');
+                
+                if(path == ""){
+                    return
+                }
+                var paths = path.split("\\");
+                path = paths.join("/");
+                postNode(`{"method":"addspacesize","params":{"n":1,"absPath":"`+ path +`"}}`,function(data){
+                    console.log(data);
+                    flashStoreSize();
+                });
+                // $('#fileupload').click();
+                // $('#fileupload').on('change', function() {
+                //     var path = $('#fileupload').val();
+                //     console.log(path);
+                //     var paths = path.split("\\");
+                //     console.log(paths);
+                //     path = paths.join("/");
+                //     console.log(path);
+                // });
+                return false;
+            });
+
+            //减少空间
+            $("#sub_size_bt").on('click', function() {
+                postNode(`{"method":"delspacesize","params":{"n":1}}`,function(data){
+
+                    console.log(data);
+                    flashStoreSize();
+                    console.log("222");
+                });
+            });
+
+
+            //上传文件
+            $("#upload_bt").on('click', function() {
+                $('#fileToUpload').click();
+    
+            });
+
+            $('#fileToUpload').on('change', function() {
+                console.log("123456");
+                // var path = $('#fileToUpload').val();
+                $.ajaxFileUpload({
+                    url:"http://"+config.WebAddr+":"+config.WebPort+"/store/addfile",
+                    secureuri:false,
+                    fileElementId:'fileToUpload',//file标签的id
+                    dataType: 'json',//返回数据的类型
+                    // data:{Token:Token},//一同上传的数据
+                    success: function (data, status) {
+                        console.log(data);
+
+                    },  
+                    error: function (data, status, e) {
+                        console.log(data);
+                    }
+                });
+            });
+
+               
+
+            
+
+
+          
+        });
+    </script>
+</head>
+<body  style="overflow: hidden;">
+    <!-- 隐藏file标签 -->
+    <input id="fileToUpload" style="display: none" type="file" name="files[]">
+
+
+
+<div class="ui left demo vertical inverted visible sidebar labeled icon menu">
+  <a id="browser" href="../browser.html" class="item nav_bt">
+        <i class="browser icon"></i>浏览器
+    </a>
+    <a id="im" href="../im.html" class="item nav_bt">
+        <i class="comments icon"></i>聊天
+    </a>
+    <a id="friends" href="../friends.html" class="item nav_bt">
+        <i class="address book outline icon"></i>联系人
+    </a>
+    <a id="files" href="../files.html" class="active item nav_bt">
+        <i class="folder icon"></i>云存储
+    </a>
+    <a id="wallet" href="../wallet.html" class="item nav_bt">
+        <i class="payment icon"></i>钱包
+    </a>
+    <a id="wrench" href="" class="item nav_bt">
+        <i class="wrench icon"></i>设置
+    </a>
+</div>
+
+<div class="pusher">
+  <div class="ui top attached demo menu">
+    <a class="item nav_bt"><i class="sidebar icon"></i>菜单 </a>
+  </div>
+
+
+
+
+<div class="ui grid">
+    <div class="four wide column" style="overflow: hidden;">
+        <div class="ui left vertical menu">
+            <div class="item">
+                <div class="ui input"><input type="text" placeholder="搜索文件..."></div>
+            </div>
+            <a href="../files/files_store.html" class="item">云存储</a>
+            <a href="../files/files_sharebox.html" class="item">共享文件</a>
+            <a href="../files/files_download.html" class="item">下载列表</a>
+            <div class="item">
+                <div id="store_size" class="ui blue tiny progress" data-value="0" data-total="0">
+                    <div class="bar"></div>
+                    <div class="label">0G/0G</div>
+                </div>
+                <div class="ui icon buttons">
+                    <div id="add_size_bt" class="increment ui basic green button icon"><i class="plus icon"></i></div>
+                    <div id="sub_size_bt" class="decrement ui basic red button icon"><i class="minus icon"></i></div>
+                </div>
+                <!-- <div class="ui compact icon menu">
+                    <a class="item"><i class="plus icon"></i></a>
+                    <a class="item"><i class="minus icon"></i></a>
+                </div> -->
+            </div>
+        </div>
+        
+
+        <div class="ui card">
+            <div class="content">
+                <div class="header">文件信息</div>
+            </div>
+            <div class="content">
+                <div class="ui small feed">
+                    <div class="event">
+                        <div class="content">
+                            <div class="summary">名称：哈利波特</div>
+                        </div>
+                    </div>
+                    <div class="event">
+                        <div class="content">
+                            <div class="summary">大小：512k</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="extra content">
+                <button class="ui button">Join Project</button>
+            </div>
+        </div>
+
+
+
+    </div>
+
+
+
+
+    <div class="twelve wide column" >
+        <div class="ui menu">
+            <a id="upload_bt" class="item"><i class="upload icon"></i> 上传 </a>
+            <a id="download_bt" class="item"><i class="download icon"></i> 下载 </a>
+            <div class="right icon menu">
+                <a class="item"><i class="list icon"></i></a>
+                <a class="item"><i class="file outline icon"></i></a>
+            </div>
+        </div>
+
+
+
+
+ 
+
+
+        <div id="content"  style="overflow-y: scroll; overflow-x: hidden; height: calc(100vh - 100px);">
+<!--             <div class="ui grid">
+                <div class="four wide column">1</div>
+                <div class="four wide column">1</div>
+                <div class="four wide column">1</div>
+                <div class="four wide column">1</div>
+                <div class="four wide column">1</div>
+                <div class="four wide column">1</div>
+                <div class="four wide column">1</div>
+                <div class="four wide column">1</div>
+            </div> -->
+          
+
+
+        <div class="ui six doubling cards" style="">
+            <div class="card">
+                <h2 class="ui icon header">
+                    <i class="file icon"></i>
+                    <div class="content"><div class="sub header">文件</div>
+                    </div>
+                </h2>
+            </div>
+            <div class="card">
+                <h2 class="ui icon header">
+                    <i class="file icon"></i>
+                    <div class="content"><div class="sub header">文件</div>
+                    </div>
+                </h2>
+            </div>
+            <div class="card">
+                <h2 class="ui icon header">
+                    <i class="file icon"></i>
+                    <div class="content"><div class="sub header">文件</div>
+                    </div>
+                </h2>
+            </div>
+            <div class="card">
+                <h2 class="ui icon header">
+                    <i class="file icon"></i>
+                    <div class="content"><div class="sub header">文件</div>
+                    </div>
+                </h2>
+            </div>
+            <div class="card">
+                <h2 class="ui icon header">
+                    <i class="file icon"></i>
+                    <div class="content"><div class="sub header">文件</div>
+                    </div>
+                </h2>
+            </div>
+            <div class="card">
+                <h2 class="ui icon header">
+                    <i class="file icon"></i>
+                    <div class="content"><div class="sub header">文件</div>
+                    </div>
+                </h2>
+            </div>
+            <div class="card">
+                <h2 class="ui icon header">
+                    <i class="file icon"></i>
+                    <div class="content"><div class="sub header">文件</div>
+                    </div>
+                </h2>
+            </div>
+            <div class="card">
+                <h2 class="ui icon header">
+                    <i class="file icon"></i>
+                    <div class="content"><div class="sub header">文件</div>
+                    </div>
+                </h2>
+            </div>
+            <div class="card">
+                <h2 class="ui icon header">
+                    <i class="file icon"></i>
+                    <div class="content"><div class="sub header">文件</div>
+                    </div>
+                </h2>
+            </div>
+            <div class="card">
+                <h2 class="ui icon header">
+                    <i class="file icon"></i>
+                    <div class="content"><div class="sub header">文件</div>
+                    </div>
+                </h2>
+            </div>
+            <div class="card">
+                <h2 class="ui icon header">
+                    <i class="file icon"></i>
+                    <div class="content"><div class="sub header">文件</div>
+                    </div>
+                </h2>
+            </div>
+            <div class="card">
+                <h2 class="ui icon header">
+                    <i class="file icon"></i>
+                    <div class="content"><div class="sub header">文件</div>
+                    </div>
+                </h2>
+            </div>
+            <div class="card">
+                <h2 class="ui icon header">
+                    <i class="file icon"></i>
+                    <div class="content"><div class="sub header">文件</div>
+                    </div>
+                </h2>
+            </div>
+            <div class="card">
+                <h2 class="ui icon header">
+                    <i class="file icon"></i>
+                    <div class="content"><div class="sub header">文件</div>
+                    </div>
+                </h2>
+            </div>
+        </div>
+
+
+
+        </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+
+
+
+
+<script type="text/javascript">
+
+$('.ui.labeled.icon.sidebar')
+  .sidebar('toggle')
+  .sidebar('attach events', '.nav_bt');
+</script>
+
+
+</body>
+</html>

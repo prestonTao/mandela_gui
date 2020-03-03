@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>wangEditor 全屏</title>
+    <style type="text/css">
+        html,body{
+            margin:0;
+            height: 100%;
+        }
+
+        #container {
+            /*width: 800px;*/
+            height: 100%;
+            margin: 0 auto;
+        }
+        #toolbar-container {
+            height: 30px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+        }
+        #toolbar-container:after {
+            display: table;
+            content: '';
+            clear: both;
+        }
+        #editor-toolbar {
+
+            float: left;
+        }
+        #btn-container {
+            float: right;
+            text-align: right;
+        }
+        #editor-text {
+            border: 1px solid #ccc;
+            border-top: 0;
+            /*height: 300px;*/
+            height: calc(100vh - 34px);
+            background-color: #fff;
+        }
+        #cover {
+            display: none;
+            position: fixed;
+            z-index: 100;
+            top: 50px;
+            left: 50px;
+            right: 50px;
+            height: 500px;
+            padding: 20px;
+            background-color: #f1f1f1;
+        }
+    </style>
+</head>
+<body>
+    <!-- <p>wangEditor 全屏</p> -->
+
+    <!--非全屏模式-->
+    <div id="container">
+        <!--菜单栏-->
+        <div id="toolbar-container">
+            <!-- <div id="btn-container">
+                <button id="btn1">保存</button>
+            </div> -->
+            <div id="editor-toolbar"></div>
+        </div>
+        <!--编辑区域-->
+        <div id="editor-text">
+            <p>写点什么...</p>
+        </div>
+    </div>
+
+    <!--全屏模式-->
+    <div id="cover"></div>
+
+
+    <script type="text/javascript" src="wangEditor-3.1.1/release/wangEditor.min.js"></script>
+<!--     <script type="text/javascript" src="wangEditor-3.1.1/release/wangEditor-fullscreen-plugin.js"></script>
+    <link rel="stylesheet" type="text/css" href="wangEditor-3.1.1/release/wangEditor-fullscreen-plugin.css"> -->
+    <script type="text/javascript">
+        // 创建编辑器
+        var E = window.wangEditor
+        var editor = new E('#editor-toolbar', '#editor-text')
+        editor.customConfig.uploadImgShowBase64 = true   // 使用 base64 保存图片
+        editor.create()
+        // E.fullscreen.init('#editor-text');
+
+        // 获取使用到的元素
+        var toolbarContaner = document.getElementById('toolbar-container')
+        var editorText = document.getElementById('editor-text')
+        var cover = document.getElementById('cover')
+        var container = document.getElementById('container')
+
+        // 全屏事件
+        function doFullScreen() {
+            cover.style.display = 'block'
+            editorText.style.height = '460px';
+            cover.appendChild(toolbarContaner)
+            cover.appendChild(editorText)
+        }
+
+        // 退出全屏事件
+        function unDoFullScreen() {
+            container.appendChild(toolbarContaner)
+            container.appendChild(editorText)
+            editorText.style.height = '300px';
+            cover.style.display = 'none'
+        }
+
+        // 是否是全屏的标志
+        var isFullScreen = true
+
+        // 点击事件
+        // var btn1 = document.getElementById('btn1')
+        // btn1.addEventListener('click', function () {
+        //     if (isFullScreen) {
+        //         isFullScreen = false
+        //         unDoFullScreen()
+        //     } else {
+        //         isFullScreen = true
+        //         doFullScreen()
+        //     }
+        // }, false)
+
+        var apps = 'test';
+        function show() {
+            var info = editor.txt.html()
+            // document.getElementById("info").innerText="a="+a+",b="+b;
+
+            // document.getElementById("infoJava").innerText= apps.showInfo("java");
+            apps.save(info);
+        }
+    </script>
+</body>
+</html>

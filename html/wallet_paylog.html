@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>wallet</title>
+<!--     <script>
+    window.nodeRequire = require;
+    delete window.require;
+    delete window.exports;
+    delete window.module;
+    </script> -->
+ 
+  <script>window.$ = window.jQuery = require('./js/jquery-1.12.4.min.js');</script>
+    <script type="text/javascript" src="./js/Calculator.min.js"></script>
+    <script type="text/javascript" src="./Semantic-UI-CSS-2.4/semantic.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="./Semantic-UI-CSS-2.4/semantic.min.css">
+
+    <script type="text/javascript">
+      var config = null;
+      var opt = null;
+      var url = "";
+      const ipcRenderer = require('electron').ipcRenderer;
+    //  ipcRenderer.on('recv_config', (event, arg) => {
+    //    // console.log(arg) // prints "pong"
+    //    config = arg;
+    //    // init();
+      // })
+      // ipcRenderer.send('send_config', 'ping');
+      
+      function countSecond(){　
+        $.ajax({ url: "http://"+config.WebAddr+":"+config.WebPort+"/rpc",
+        type:"POST",
+        headers:{'Content-Type':'application/json;charset=utf8','user':config.RpcUser,"password":config.RpcPassword},
+        data:`{"method":"getinfo"}`,
+        // async:false,
+        dateType:'json',
+        // context: document.body, 
+        success: function(data){
+        // $(this).addClass("done");
+          console.log(data);
+          // console.log(data.result.CurrentBlock);
+          // console.log(data.result.HighestBlock);
+
+          $("#chain_height").text(data.result.CurrentBlock);
+          $("#new_height").text(data.result.HighestBlock);
+          var calculator=new Calculator();
+          var x = calculator.divide(data.result.balance, 100000000);
+          $("#chain_balance").text(x);
+
+
+        }});
+        setTimeout("countSecond()", 1000)
+    }
+    //  function init(){
+    //    opt = { url: url,
+      //  type:"POST",
+      //  headers:{'Content-Type':'application/json;charset=utf8','user':config.RpcUser,"password":config.RpcPassword},
+      //  data:null,
+      //  // async:false,
+      //  dateType:'json',
+      //  // context: document.body, 
+      //  success: function(data){
+      //  // $(this).addClass("done");
+      //  }};
+    //    url = "http://"+config.WebAddr+":"+config.WebPort+"/rpc";
+
+    // //     opt.data = `{"method":"getinfo"}`;
+      // // opt.success = function(data){
+      // //   console.log(data)
+      // // }
+      // postPeer(`{"method":"getinfo"}`,function(data){
+      //  console.log(data)
+      // })
+    //  }
+
+
+      // function postPeer(data, call){
+      //  opt.data = data;
+      //  opt.success = call;
+      //  $.ajax(opt);
+      // }
+
+      // ipc.on('recv_config', (event, arg) => {
+     //     console.log(arg) // prints "pong"
+      // });
+  // var api = "";
+  $(document).ready(function() {
+    config = ipcRenderer.sendSync('send_config', 'ping');
+    
+    // 执行函数
+    countSecond()
+    
+    // opt.data = `{"method":"getinfo"}`;
+    // opt.success = function(data){
+    //  console.log(data)
+    // }
+
+
+
+      // $("#home").click(function(){
+      //     api.show("wallet.html");
+      // });
+  //     $("#payout").click(function(){
+  //      alert(1);
+  //         api.show("wallet_payout.html");
+  //     });
+  //     $("#address").click(function(){
+  //         api.show("wallet_address.html");
+  //     });
+  //     $("#paylog").click(function(){
+  //         api.show("wallet_paylog.html");
+  //     });
+  //     $("#witness").click(function(){
+  //         api.show("wallet_witness.html");
+  //     });
+  //     $("#names").click(function(){
+  //         api.show("wallet_name.html");
+  //     });
+  //     $("#pwd").click(function(){
+  //         api.show("wallet_pwd.html");
+  //     });
+  });
+  </script>
+</head>
+<body>
+
+  
+
+
+
+<div class="ui left demo vertical inverted visible sidebar labeled icon menu">
+  <a id="browser" href="./browser.html" class="item">
+        <i class="browser icon"></i>浏览器
+    </a>
+    <a id="im" href="./im.html" class="item">
+        <i class="comments icon"></i>聊天
+    </a>
+    <a id="friends" href="./friends.html" class="item">
+        <i class="address book outline icon"></i>联系人
+    </a>
+    <a id="files" href="./files.html" class="item">
+        <i class="folder icon"></i>云存储
+    </a>
+    <a id="wallet" href="./wallet.html" class="active item">
+        <i class="payment icon"></i>钱包
+    </a>
+    <a id="wrench" href="" class="item">
+        <i class="wrench icon"></i>设置
+    </a>
+  <!-- <a class="item">
+    <i class="home icon"></i>
+    Home
+  </a>
+  <a class="item">
+    <i class="block layout icon"></i>
+    Topics
+  </a>
+  <a class="item">
+    <i class="smile icon"></i>
+    Friends
+  </a> -->
+</div>
+
+<div class="pusher">
+  <div class="ui top attached demo menu">
+    <a class="item"><i class="sidebar icon"></i>菜单 </a>
+    nihao
+  </div>
+
+
+
+
+
+
+
+
+
+<div class="ui inverted menu">
+  <a id="home" href="./wallet.html" onclick="" class="active item">概况</a>
+  <a id="payout" href="./wallet_payout.html" class="item">转账</a>
+  <a id="address" href="./wallet_address.html" class="item">收款地址</a>
+  <a id="paylog" href="./wallet_paylog.html" class="item">交易记录</a>
+  <a id="witness" href="./wallet_witness.html" class="item">见证人</a>
+  <a id="names" href="./wallet_name.html" class="item">域名</a>
+  <a id="pwd" href="./wallet_pwd.html" class="item">密码</a>
+</div>
+
+<div style="margin:0 20px 0 20px;">
+  
+
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+
+
+
+
+<script type="text/javascript">
+
+$('.ui.labeled.icon.sidebar')
+  .sidebar('toggle')
+  .sidebar('attach events', '.menu .item')
+;
+// using context
+// $('.context.example .ui.labeled.icon.sidebar')
+//   .sidebar({
+//     context: $('.context.example .left')
+//   })
+//   .sidebar('attach events', '.context.example .menu .item')
+// ;
+</script>
+
+
+</body>
+</html>

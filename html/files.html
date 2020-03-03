@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>存储</title>
+<!--     <script>
+    window.nodeRequire = require;
+    delete window.require;
+    delete window.exports;
+    delete window.module;
+    </script> -->
+ 
+	<script>window.$ = window.jQuery = require('./js/jquery-1.12.4.min.js');</script>
+    <!-- <script type="text/javascript" src="./js/Calculator.min.js"></script> -->
+    <script type="text/javascript" src="./Semantic-UI-CSS-2.4/semantic.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="./Semantic-UI-CSS-2.4/semantic.min.css">
+
+    <script type="text/javascript">
+    	var config = null;
+    	var opt = null;
+    	var url = "";
+    	const ipcRenderer = require('electron').ipcRenderer;
+
+  		
+  		function countSecond(){　
+  			setTimeout("countSecond()", 1000)
+		    $.ajax({ url: "http://"+config.WebAddr+":"+config.WebPort+"/rpc",
+				type:"POST",
+				headers:{'Content-Type':'application/json;charset=utf8','user':config.RpcUser,"password":config.RpcPassword},
+				data:`{"method":"getinfo"}`,
+				// async:false,
+				dateType:'json',
+				// context: document.body, 
+				success: function(data){
+				// $(this).addClass("done");
+					console.log(data);
+					console.log(data.result.CurrentBlock);
+					console.log(data.result.HighestBlock);
+
+					// $("#chain_height").text(data.result.CurrentBlock);
+					// $("#new_height").text(data.result.HighestBlock);
+					// var calculator=new Calculator();
+					// var x = calculator.divide(data.result.balance, 100000000);
+					// $("#chain_balance").text(x);
+
+
+				}});
+		    
+		}
+  	
+		$(document).ready(function() {
+			config = ipcRenderer.sendSync('send_config', 'ping');
+
+			countSecond()
+			
+		});
+	</script>
+</head>
+<body>
+
+	
+
+
+
+<div class="ui left demo vertical inverted visible sidebar labeled icon menu">
+	<a id="browser" href="./browser.html" class="item nav_bt">
+        <i class="browser icon"></i>浏览器
+    </a>
+    <a id="im" href="./im.html" class="item nav_bt">
+        <i class="comments icon"></i>聊天
+    </a>
+    <a id="friends" href="./friends.html" class="item nav_bt">
+        <i class="address book outline icon"></i>联系人
+    </a>
+    <a id="files" href="./files.html" class="active item nav_bt">
+        <i class="folder icon"></i>云存储
+    </a>
+    <a id="wallet" href="./wallet.html" class="item nav_bt">
+        <i class="payment icon"></i>钱包
+    </a>
+    <a id="wrench" href="" class="item nav_bt">
+        <i class="wrench icon"></i>设置
+    </a>
+</div>
+
+<div class="pusher">
+	<div class="ui top attached demo menu">
+	  <a class="item nav_bt"><i class="sidebar icon"></i>菜单 </a>
+	</div>
+
+
+
+
+<div class="ui grid">
+    <div class="four wide column" style="overflow: hidden;">
+        <div class="ui left vertical menu">
+            <a href="./files/files_sharebox.html" class="item">共享文件</a>
+            <a href="./files/files_store.html" class="item">云存储</a>
+            <a href="./files/files_download.html" class="item">下载列表</a>
+        </div>
+    </div>
+    <div class="twelve wide column" style="">6</div>
+</div>
+
+<!-- 
+<div class="ui">
+    
+
+
+
+
+
+
+
+<div class="ui left vertical menu">
+  <a class="item">Features</a>
+  <a class="item">Testimonials</a>
+  <a class="item">Sign-in</a>
+</div>
+<div class="ui right fixed vertical menu">
+  <div class="item">
+    <img class="ui mini image" src="/images/logo.png">
+  </div>
+  <a class="item">Features</a>
+  <a class="item">Testimonials</a>
+  <a class="item">Sign-in</a>
+</div>
+
+<div class="ui right">
+    
+<p>123</p>
+<p></p>
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+</div>
+ -->
+
+
+</div>
+
+
+
+
+<script type="text/javascript">
+
+$('.ui.labeled.icon.sidebar')
+  .sidebar('toggle')
+  .sidebar('attach events', '.nav_bt');
+</script>
+
+
+</body>
+</html>

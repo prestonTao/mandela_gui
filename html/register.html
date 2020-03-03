@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>login</title>
+    <script>window.$ = window.jQuery = require('./js/jquery-1.12.4.min.js');</script>
+    <!-- <script type="text/javascript" src="./js/jquery-3.4.1.min.js"></script> -->
+    <script type="text/javascript" src="./Semantic-UI-CSS-2.4/semantic.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="./Semantic-UI-CSS-2.4/semantic.min.css">
+    <style type="text/css">
+    body {
+      background-color: #DADADA;
+    }
+    body > .grid {
+      height: 100%;
+    }
+    .image {
+      margin-top: -100px;
+    }
+    .column {
+      max-width: 450px;
+    }
+  </style>
+  <script>
+    //在渲染器进程 (网页) 中。
+    // const { ipcRenderer } = require('electron')
+    const ipc = require('electron').ipcRenderer;
+    
+
+    ipc.on('asynchronous-reply', (event, arg) => {
+      console.log(arg) // prints "pong"
+    })
+
+  $(document).ready(function() {
+    $("#loginBT").click(function(){
+        // api.register("11111111");
+        // login.login("112233445566");
+        // console.log(ipcRenderer.sendSync('synchronous-message', 'ping')) // prints "pong"
+        console.log("clent 123") // prints
+        ipc.send('send_password', 'ping')
+
+    });
+
+      $('.ui.form').form({
+          fields: {
+            email: {
+              identifier  : 'email',
+              rules: [
+                {
+                  type   : 'empty',
+                  prompt : 'Please enter your e-mail'
+                },
+                {
+                  type   : 'email',
+                  prompt : 'Please enter a valid e-mail'
+                }
+              ]
+            },
+            password: {
+              identifier  : 'password',
+              rules: [
+                {
+                  type   : 'empty',
+                  prompt : 'Please enter your password'
+                },
+                {
+                  type   : 'length[6]',
+                  prompt : 'Your password must be at least 6 characters'
+                }
+              ]
+            }
+          }
+        })
+      ;
+    })
+  ;
+  </script>
+</head>
+<body>
+
+
+<div class="ui middle aligned center aligned grid">
+  <div class="column">
+    <h2 class="ui teal image header">
+      <img src="./Login Example - Semantic_files/logo.png" class="image">
+      <div class="content">
+        注册
+      </div>
+    </h2>
+    <form class="ui large form">
+      <div class="ui stacked segment">
+        <div class="field">
+          <div class="ui left icon input">
+            <i class="user icon"></i>
+            <input type="text" name="email" placeholder="E-mail address">
+          </div>
+        </div>
+        <div class="field">
+          <div class="ui left icon input">
+            <i class="lock icon"></i>
+            <input type="password" name="password" placeholder="Password">
+          </div>
+        </div>
+        <div id="loginBT" class="ui fluid large teal submit button">注册</div>
+      </div>
+
+      <div class="ui error message"></div>
+
+    </form>
+
+    <div class="ui message">
+      New to us? <a href="https://semantic-ui.com/examples/login.html#">Sign Up</a>
+    </div>
+  </div>
+</div>
+
+
+
+
+</body>
+</html>

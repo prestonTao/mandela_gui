@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>nav</title>
+    <script type="text/javascript">
+        var api = "";
+    </script>
+    <script type="text/javascript" src="js\jquery-3.4.1.min.js"></script>
+    <script type="text/javascript" src="Semantic-UI-CSS-2.4\semantic.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="Semantic-UI-CSS-2.4\semantic.min.css">
+    <style type="text/css">
+        html,body{
+            margin:0;
+            background: #1b1c1d;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+<div class="ui inverted vertical icon menu">
+    <a id="browser" class="item">
+        <i class="browser icon"></i>
+    </a>
+    <a id="im" class="item">
+        <i class="comments icon"></i>
+    </a>
+    <a id="firends" class="item">
+        <i class="address book outline icon"></i>
+    </a>
+    <a id="files" class="item">
+        <i class="folder icon"></i>
+    </a>
+    <a id="wallet" class="active item">
+        <i class="payment icon"></i>
+    </a>
+    <a id="wrench" class="item">
+        <i class="wrench icon"></i>
+    </a>
+
+
+</div>
+
+<script type="text/javascript">
+// var api = "test";
+// var apps = "";
+//         apps.save("nihao");
+$(document).ready(function() {
+    $("#browser").click(function(){
+        api.show("browser.html");
+    });
+    $("#im").click(function(){
+        api.show("im.html");
+    });
+    $("#files").click(function(){
+        api.show("files.html");
+    });
+    $("#wallet").click(function(){
+        api.show("wallet.html");
+    });
+    $("#wrench").click(function(){
+        api.show("htmlEditor.html");
+    });
+    $("#firends").click(function(){
+        api.show("friends.html");
+    });
+});
+</script>
+</body>
+</html>
