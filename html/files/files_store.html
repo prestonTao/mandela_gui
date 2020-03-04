@@ -26,6 +26,11 @@
         }
         #content .card{
             box-shadow:0 0 0 0;
+            overflow:hidden;
+            word-break: break-all;
+        }
+        #filename{
+            word-break: break-all;
         }
     </style>
 
@@ -34,6 +39,7 @@
         var opt = null;
         var url = "";
         var oldSelectedFiles = null;
+        var filelist = null;
         const ipcRenderer = require('electron').ipcRenderer;
 
         
@@ -77,6 +83,13 @@
         }
 
         /*
+            隐藏文件信息窗口
+        */
+        function hiddenFileInfo(){
+            $(".fileinfo").hide();
+        }
+
+        /*
             刷新存储空间大小
         */  
         function flashStoreSize(){
@@ -87,19 +100,26 @@
                 $('#store_size').progress("set label", data.result.UseSize/1024/1024/1024 + "G/" + data.result.TotalSize/1024/1024/1024 + "G");
             });
         }
+
+
         /*
             刷新文件列表
         */
         function getFileList(){
             postNode(`{"method":"getfilelist"}`,function(data){
+                filelist = data.result;
                 console.log(data);
                 // var percent = data.result.UseSize / data.result.TotalSize * 100;
                 // $('#store_size').progress("set percent", percent);
                 // $('#store_size').progress("set label", data.result.UseSize/1024/1024/1024 + "G/" + data.result.TotalSize/1024/1024/1024 + "G");
+                $("#content .card").off();
+                $("#content .cards").html("");
                 for(i=0,len=data.result.length; i < len; i++){
                     var one = data.result[i];
-                    $("#content .cards").append('<div class="card newcard">        <h2 class="ui icon header">          <i class="file icon"></i>              <div class="content"><div class="sub header card_filename" data="'+one.Name+'">'+ one.Name +'</div>              </div>           </h2>        </div>');
-                    $(".newcard").dataObj = data.result[i];
+                    var filetype = getFileTypeForFileName(one.Name);
+                    
+                    $("#content .cards").append('<div class="card newcard">        <h2 class="ui icon header">          <i class="'+filetype+' icon"></i>              <div class="content"><div class="sub header card_filename" data="'+one.HasCode+'">'+ one.Name +'</div>              </div>           </h2>        </div>');
+                    // $(".newcard").dataObj = data.result[i];
 
                     // $("<div></div>").appendTo("#content .cards").addClass("card").addClass("newcard");
                     // $("<h2></h2>").appendTo(".newcard").addClass("ui").addClass("icon").addClass("header").addClass("newcardh");
@@ -111,21 +131,28 @@
             });
         }
 
+        //给文件列表删除事件绑定
+        function removeEvent(){
+            $("#content .card").off();
+        }
+        //给文件列表添加事件绑定
         function addEvent(){
-            //TODO 添加事件前先删除事件
+            //添加事件前先删除事件
+            $("#content .card").off();
+
             //给文件添加点击事件
             $("#content .card").on("click",function(event){
                 console.log("card");
                 if(oldSelectedFiles != null){
 
-                    for(j = 0,len=oldSelectedFiles.length; j < len; j++) {
+                    for(var j = 0,len=oldSelectedFiles.length; j < len; j++) {
                        // $(oldSelectedFiles[j]).removeClass();
                     }
                 }
                 oldSelectedFile = this;
                 //清空之前的选择文件样式
                 var cards = $(".selectcard");
-                for(i=0,len=cards.length; i < len; i++){
+                for(var i=0,len=cards.length; i < len; i++){
                     $(cards[i]).removeClass("selectcard");
                 }
                 var cards = $(".selected");
@@ -136,10 +163,22 @@
                 $(this).addClass("selectcard");
                 $(".selectcard .header").addClass("selected");
 
-                var filename = $(".selected .card_filename").attr("data");
+                var filehash = $(".selected .card_filename").attr("data");
                 // var data = $(this).dataObj;
-                console.log(filename);
-                $("#filename").text(filename);
+                console.log(filehash);
+                for(var i=0,len=filelist.length; i<len; i++){
+                    if(filehash == filelist[i].HasCode){
+                        $("#filename").text("名称："+filelist[i].Name);
+                        $("#filesize").text("大小："+filelist[i].Size/1024+" KB");
+                        // var crtTime = new Date(filelist[i].Time);
+                        var unixTimestamp = new Date(filelist[i].Time * 1000); 
+                        var commonTime = unixTimestamp.toLocaleString();
+                        $("#filetime").html("上传时间：<br>"+commonTime);
+                        $(".fileinfo").show();
+                        break;
+                    }
+                }
+                
 
             });
 
@@ -171,6 +210,7 @@
             // countSecond();
             flashStoreSize();
             getFileList();
+            $(".fileinfo").hide();
 
             
 
@@ -214,26 +254,49 @@
 
             //上传文件
             $("#upload_bt").on('click', function() {
+                console.log("上传 bt");
+                $('#fileToUpload').on('change', function() {
+                    console.log("123456");
+                    // var path = $('#fileToUpload').val();
+                    $.ajaxFileUpload({
+                        url:"http://"+config.WebAddr+":"+config.WebPort+"/store/addfile",
+                        // secureuri:false,
+                        fileElementId:'fileToUpload',//file标签的id
+                        dataType: 'json',//返回数据的类型
+                        // data:{Token:Token},//一同上传的数据
+                        success: function (data, status) {
+                            console.log(data);
+                            flashStoreSize();
+                            getFileList();
+                        },  
+                        error: function (data, status, e) {
+                            console.log(data,status);
+                            flashStoreSize();
+                            getFileList();
+                        }
+                    });
+                });
                 $('#fileToUpload').click();
-    
             });
+            
 
-            $('#fileToUpload').on('change', function() {
-                console.log("123456");
-                // var path = $('#fileToUpload').val();
-                $.ajaxFileUpload({
-                    url:"http://"+config.WebAddr+":"+config.WebPort+"/store/addfile",
-                    secureuri:false,
-                    fileElementId:'fileToUpload',//file标签的id
-                    dataType: 'json',//返回数据的类型
-                    // data:{Token:Token},//一同上传的数据
-                    success: function (data, status) {
-                        console.log(data);
+            //删除文件
+            $("#remove_bt").on('click', function() {
 
-                    },  
-                    error: function (data, status, e) {
-                        console.log(data);
-                    }
+                var filehash = $(".selected .card_filename").attr("data");
+                // console.log(filehash);
+                // for(var i=0,len=filelist.length; i<len; i++){
+                //     if(filehash == filelist[i].Hash){
+                //         // $("#filename").text(filelist[i].Name);
+                //         break;
+                //     }
+                // }
+                postNode(`{"method":"delfile","params":{"hash":"`+filehash+`"}}`,function(data){
+
+                    console.log(data);
+                    getFileList();
+                    flashStoreSize();
+                    console.log("222");
                 });
             });
 
@@ -244,6 +307,37 @@
 
           
         });
+
+
+        //获取文件名称后缀
+        function getType(file){
+            var filename=file;
+            var index1=filename.lastIndexOf(".");
+            var index2=filename.length;
+            //alert(index2);
+            var type=filename.substring(index1,index2);
+            // alert(type);
+            return type;
+        }
+        //通过文件名称获取文件类型
+        function getFileTypeForFileName(filename){
+            // alert(filename);
+            var filetype_image = "image outline";
+            var filetype_movie = "film";
+            var filetype_archive = "file archive";
+            var filetype_other = "file";
+            switch(getType(filename)) {
+                case ".jpg":
+                    return filetype_image;
+                    break;
+                case ".png":
+                    return filetype_image;
+                case ".mp4":
+                    return filetype_movie;
+                default:
+                    return filetype_other;
+            } 
+        }
     </script>
 </head>
 <body  style="overflow: hidden;">
@@ -274,9 +368,14 @@
 </div>
 
 <div class="pusher">
-  <div class="ui top attached demo menu">
-    <a class="item nav_bt"><i class="sidebar icon"></i>菜单 </a>
-  </div>
+    <div class="ui top attached demo menu">
+        <a class="item nav_bt"><i class="sidebar icon"></i>菜单 </a>
+        <div class="right icon menu">
+            <a class="item"><i class="minus icon"></i></a>
+            <a class="item"><i class="window restore outline icon"></i></a>
+            <a class="item"><i class="close icon icon"></i></a>
+        </div>
+    </div>
 
 
 
@@ -304,8 +403,7 @@
                     <a class="item"><i class="minus icon"></i></a>
                 </div> -->
             </div>
-            <div>
-                <div class="ui card">
+                <div class="ui card fileinfo">
                     <div class="content">
                         <div class="header">文件信息</div>
                     </div>
@@ -313,21 +411,25 @@
                         <div class="ui small feed">
                             <div class="event">
                                 <div class="content">
-                                    <div id="filename" class="summary">名称：哈利波特</div>
+                                    <div id="filename" class="summary">名称：</div>
                                 </div>
                             </div>
                             <div class="event">
                                 <div class="content">
-                                    <div class="summary">大小：512k</div>
+                                    <div id="filesize" class="summary">大小：0KB</div>
+                                </div>
+                            </div>
+                            <div class="event">
+                                <div class="content">
+                                    <div id="filetime" class="summary">上传时间：</div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="extra content">
+                    <!-- <div class="extra content">
                         <button class="ui button">Join Project</button>
-                    </div>
+                    </div> -->
                 </div>
-            </div>
         </div>
         
 
@@ -344,9 +446,10 @@
         <div class="ui menu">
             <a id="upload_bt" class="item"><i class="upload icon"></i> 上传 </a>
             <a id="download_bt" class="item"><i class="download icon"></i> 下载 </a>
+            <a id="remove_bt" class="item"><i class="trash alternate icon"></i> 删除 </a>
             <div class="right icon menu">
-                <a class="item"><i class="list icon"></i></a>
-                <a class="item"><i class="file outline icon"></i></a>
+                <a class="item"><i class="th list icon"></i></a>
+                <a class="item"><i class="th icon"></i></a>
             </div>
         </div>
 
