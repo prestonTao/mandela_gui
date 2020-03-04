@@ -87,22 +87,32 @@
                 $('#store_size').progress("set label", data.result.UseSize/1024/1024/1024 + "G/" + data.result.TotalSize/1024/1024/1024 + "G");
             });
         }
+        /*
+            刷新文件列表
+        */
+        function getFileList(){
+            postNode(`{"method":"getfilelist"}`,function(data){
+                console.log(data);
+                // var percent = data.result.UseSize / data.result.TotalSize * 100;
+                // $('#store_size').progress("set percent", percent);
+                // $('#store_size').progress("set label", data.result.UseSize/1024/1024/1024 + "G/" + data.result.TotalSize/1024/1024/1024 + "G");
+                for(i=0,len=data.result.length; i < len; i++){
+                    var one = data.result[i];
+                    $("#content .cards").append('<div class="card newcard">        <h2 class="ui icon header">          <i class="file icon"></i>              <div class="content"><div class="sub header card_filename" data="'+one.Name+'">'+ one.Name +'</div>              </div>           </h2>        </div>');
+                    $(".newcard").dataObj = data.result[i];
 
+                    // $("<div></div>").appendTo("#content .cards").addClass("card").addClass("newcard");
+                    // $("<h2></h2>").appendTo(".newcard").addClass("ui").addClass("icon").addClass("header").addClass("newcardh");
+                    // $("<i></i>").appendTo(".newcardh").addClass("file").addClass("icon").addClass("newcardi");
+                    // $("<div></div>").appendTo(".newcardh").addClass("content").addClass("newcarddiv");
+                    // $("<div></div>").appendTo(".newcarddiv").addClass("sub").addClass("header");
+                }
+                addEvent();
+            });
+        }
 
-    
-        $(document).ready(function() {
-            config = ipcRenderer.sendSync('send_config', 'ping');
-            opt = {
-                url: "http://"+config.WebAddr+":"+config.WebPort+"/rpc",
-                type:"POST",
-                headers:{'Content-Type':'application/json;charset=utf8','user':config.RpcUser,"password":config.RpcPassword},
-                data:`{"method":"getinfo"}`,
-                // async:false,
-                dateType:'json'
-            }
-            // countSecond();
-            flashStoreSize();
-
+        function addEvent(){
+            //TODO 添加事件前先删除事件
             //给文件添加点击事件
             $("#content .card").on("click",function(event){
                 console.log("card");
@@ -125,6 +135,12 @@
                 //给新选中的文件添加样式
                 $(this).addClass("selectcard");
                 $(".selectcard .header").addClass("selected");
+
+                var filename = $(".selected .card_filename").attr("data");
+                // var data = $(this).dataObj;
+                console.log(filename);
+                $("#filename").text(filename);
+
             });
 
             //给文件添加鼠标mouseover事件
@@ -138,6 +154,25 @@
                 $(".mouseovercard .header").removeClass("mouseover");
                 $(".mouseovercard").removeClass("mouseovercard");
             });
+        }
+
+
+    
+        $(document).ready(function() {
+            config = ipcRenderer.sendSync('send_config', 'ping');
+            opt = {
+                url: "http://"+config.WebAddr+":"+config.WebPort+"/rpc",
+                type:"POST",
+                headers:{'Content-Type':'application/json;charset=utf8','user':config.RpcUser,"password":config.RpcPassword},
+                data:`{"method":"getinfo"}`,
+                // async:false,
+                dateType:'json'
+            }
+            // countSecond();
+            flashStoreSize();
+            getFileList();
+
+            
 
 
 
@@ -269,31 +304,34 @@
                     <a class="item"><i class="minus icon"></i></a>
                 </div> -->
             </div>
-        </div>
-        
-
-        <div class="ui card">
-            <div class="content">
-                <div class="header">文件信息</div>
-            </div>
-            <div class="content">
-                <div class="ui small feed">
-                    <div class="event">
-                        <div class="content">
-                            <div class="summary">名称：哈利波特</div>
+            <div>
+                <div class="ui card">
+                    <div class="content">
+                        <div class="header">文件信息</div>
+                    </div>
+                    <div id="fileinfo" class="content">
+                        <div class="ui small feed">
+                            <div class="event">
+                                <div class="content">
+                                    <div id="filename" class="summary">名称：哈利波特</div>
+                                </div>
+                            </div>
+                            <div class="event">
+                                <div class="content">
+                                    <div class="summary">大小：512k</div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="event">
-                        <div class="content">
-                            <div class="summary">大小：512k</div>
-                        </div>
+                    <div class="extra content">
+                        <button class="ui button">Join Project</button>
                     </div>
                 </div>
             </div>
-            <div class="extra content">
-                <button class="ui button">Join Project</button>
-            </div>
         </div>
+        
+
+
 
 
 
@@ -333,104 +371,7 @@
 
 
         <div class="ui six doubling cards" style="">
-            <div class="card">
-                <h2 class="ui icon header">
-                    <i class="file icon"></i>
-                    <div class="content"><div class="sub header">文件</div>
-                    </div>
-                </h2>
-            </div>
-            <div class="card">
-                <h2 class="ui icon header">
-                    <i class="file icon"></i>
-                    <div class="content"><div class="sub header">文件</div>
-                    </div>
-                </h2>
-            </div>
-            <div class="card">
-                <h2 class="ui icon header">
-                    <i class="file icon"></i>
-                    <div class="content"><div class="sub header">文件</div>
-                    </div>
-                </h2>
-            </div>
-            <div class="card">
-                <h2 class="ui icon header">
-                    <i class="file icon"></i>
-                    <div class="content"><div class="sub header">文件</div>
-                    </div>
-                </h2>
-            </div>
-            <div class="card">
-                <h2 class="ui icon header">
-                    <i class="file icon"></i>
-                    <div class="content"><div class="sub header">文件</div>
-                    </div>
-                </h2>
-            </div>
-            <div class="card">
-                <h2 class="ui icon header">
-                    <i class="file icon"></i>
-                    <div class="content"><div class="sub header">文件</div>
-                    </div>
-                </h2>
-            </div>
-            <div class="card">
-                <h2 class="ui icon header">
-                    <i class="file icon"></i>
-                    <div class="content"><div class="sub header">文件</div>
-                    </div>
-                </h2>
-            </div>
-            <div class="card">
-                <h2 class="ui icon header">
-                    <i class="file icon"></i>
-                    <div class="content"><div class="sub header">文件</div>
-                    </div>
-                </h2>
-            </div>
-            <div class="card">
-                <h2 class="ui icon header">
-                    <i class="file icon"></i>
-                    <div class="content"><div class="sub header">文件</div>
-                    </div>
-                </h2>
-            </div>
-            <div class="card">
-                <h2 class="ui icon header">
-                    <i class="file icon"></i>
-                    <div class="content"><div class="sub header">文件</div>
-                    </div>
-                </h2>
-            </div>
-            <div class="card">
-                <h2 class="ui icon header">
-                    <i class="file icon"></i>
-                    <div class="content"><div class="sub header">文件</div>
-                    </div>
-                </h2>
-            </div>
-            <div class="card">
-                <h2 class="ui icon header">
-                    <i class="file icon"></i>
-                    <div class="content"><div class="sub header">文件</div>
-                    </div>
-                </h2>
-            </div>
-            <div class="card">
-                <h2 class="ui icon header">
-                    <i class="file icon"></i>
-                    <div class="content"><div class="sub header">文件</div>
-                    </div>
-                </h2>
-            </div>
-            <div class="card">
-                <h2 class="ui icon header">
-                    <i class="file icon"></i>
-                    <div class="content"><div class="sub header">文件</div>
-                    </div>
-                </h2>
-            </div>
+            
         </div>
 
 
