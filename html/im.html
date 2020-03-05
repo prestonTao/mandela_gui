@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>wallet</title>
+    <title>聊天</title>
 <!--     <script>
     window.nodeRequire = require;
     delete window.require;
@@ -88,7 +88,7 @@
 
 		
 		// 执行函数
-		countSecond()
+		// countSecond()
 		
 		// opt.data = `{"method":"getinfo"}`;
 		// opt.success = function(data){
@@ -164,17 +164,85 @@
 <div class="pusher">
 	<div class="ui top attached demo menu">
 	  <a class="item"><i class="sidebar icon"></i>菜单 </a>
-	  nihao
+	</div>
+
+
+	<div style="float: left; width: 210px; height: calc(100vh - 42px); background:rgb(220,220,220); overflow-y: scroll;overflow-x: hidden; border: red solid 1px;">
+		<div class="ui left vertical menu" style="background:rgb(220,220,220);">
+	        <div class="item">
+	            <div class="ui input"><input type="text" placeholder="搜索文件..."></div>
+	        </div>
+	        <a href="../files/files_store.html" class="item">云存储</a>
+	        <a href="../files/files_sharebox.html" class="item">共享文件</a>
+	        <a href="../files/files_download.html" class="item">下载列表</a>
+	        <div class="item">
+	            <div id="store_size" class="ui blue tiny progress" data-value="0" data-total="0">
+	                <div class="bar"></div>
+	                <div class="label">0G/0G</div>
+	            </div>
+	            <div class="ui icon buttons">
+	                <div id="add_size_bt" class="increment ui basic green button icon"><i class="plus icon"></i></div>
+	                <div id="sub_size_bt" class="decrement ui basic red button icon"><i class="minus icon"></i></div>
+	            </div>
+	            <!-- <div class="ui compact icon menu">
+	                <a class="item"><i class="plus icon"></i></a>
+	                <a class="item"><i class="minus icon"></i></a>
+	            </div> -->
+	        </div>
+	            <div class="ui card fileinfo">
+	                <div class="content">
+	                    <div class="header">文件信息</div>
+	                </div>
+	                <div id="fileinfo" class="content">
+	                    <div class="ui small feed">
+	                        <div class="event">
+	                            <div class="content">
+	                                <div id="filename" class="summary">名称：</div>
+	                            </div>
+	                        </div>
+	                        <div class="event">
+	                            <div class="content">
+	                                <div id="filesize" class="summary">大小：0KB</div>
+	                            </div>
+	                        </div>
+	                        <div class="event">
+	                            <div class="content">
+	                                <div id="filetime" class="summary">上传时间：</div>
+	                            </div>
+	                        </div>
+	                    </div>
+	                </div>
+	                <!-- <div class="extra content">
+	                    <button class="ui button">Join Project</button>
+	                </div> -->
+	            </div>
+	    </div>
+		
+	</div>
+	<div id="tttt" style="float: right; width:calc(100vw - 216px);height:calc(100vh - 200px); border: red solid 0px;">
+		
+	</div>
+	<div style="float: right;width: calc(100vw - 216px);height: 158px;border: red solid 0px;">
+		<div style="border: red solid 0px;">
+			<i class="meh outline icon"></i>
+			<i class="smile outline icon"></i>
+			<i class="file image outline icon"></i>
+			<i class="file image outline icon"></i>
+			<i class="image outline icon"></i>
+			<i class="folder outline icon"></i>
+		</div>
+		<div style="height: 100px; border: red solid 0px;">
+			
+		</div>
+		<div style="border: red solid 0px;">
+			<button class="compact ui button" style="float: right;">发送</button>
+		</div>
 	</div>
 
 
 
 
-
-
-
-
-聊天
+	
 
 
 
@@ -188,9 +256,8 @@
 <script type="text/javascript">
 
 $('.ui.labeled.icon.sidebar')
-  .sidebar('toggle')
-  .sidebar('attach events', '.menu .item')
-;
+	.sidebar('toggle')
+	.sidebar('attach events', '.menu .item');
 // using context
 // $('.context.example .ui.labeled.icon.sidebar')
 //   .sidebar({
@@ -198,6 +265,9 @@ $('.ui.labeled.icon.sidebar')
 //   })
 //   .sidebar('attach events', '.context.example .menu .item')
 // ;
+// $('.demo.sidebar')
+// 	.sidebar('setting', 'transition', 'overlay')
+// 	.sidebar('toggle');
 </script>
 
 
