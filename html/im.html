@@ -14,12 +14,12 @@
     <script type="text/javascript" src="./js/Calculator.min.js"></script>
     <script type="text/javascript" src="./Semantic-UI-CSS-2.4/semantic.min.js"></script>
     <link rel="stylesheet" type="text/css" href="./Semantic-UI-CSS-2.4/semantic.min.css">
-
+	<script type="text/javascript" src="./js/utils.js"></script>
     <script type="text/javascript">
     	var config = null;
     	var opt = null;
     	var url = "";
-    	const ipcRenderer = require('electron').ipcRenderer;
+    	
     	ipcRenderer.on('recv_config', (event, arg) => {
     		// console.log(arg) // prints "pong"
     		config = arg;
@@ -121,6 +121,7 @@
 	//     });
 	});
 	</script>
+	
 </head>
 <body>
 
@@ -129,22 +130,22 @@
 
 
 <div class="ui left demo vertical inverted visible sidebar labeled icon menu">
-	<a id="browser" href="./browser.html" class="item">
+	<a id="browser" href="./browser.html" class="item nav_bt">
         <i class="browser icon"></i>浏览器
     </a>
-    <a id="im" href="./im.html" class="active item">
+    <a id="im" href="./im.html" class="active item nav_bt">
         <i class="comments icon"></i>聊天
     </a>
-    <a id="friends" href="./friends.html" class="item">
+    <a id="friends" href="./friends.html" class="item nav_bt">
         <i class="address book outline icon"></i>联系人
     </a>
-    <a id="files" href="./files.html" class="item">
+    <a id="files" href="./files.html" class="item nav_bt">
         <i class="folder icon"></i>云存储
     </a>
-    <a id="wallet" href="./wallet.html" class="item">
+    <a id="wallet" href="./wallet.html" class="item nav_bt">
         <i class="payment icon"></i>钱包
     </a>
-    <a id="wrench" href="" class="item">
+    <a id="wrench" href="" class="item nav_bt">
         <i class="wrench icon"></i>设置
     </a>
   <!-- <a class="item">
@@ -163,7 +164,12 @@
 
 <div class="pusher">
 	<div class="ui top attached demo menu">
-	  <a class="item"><i class="sidebar icon"></i>菜单 </a>
+		<a class="item"><i class="sidebar icon"></i>菜单 </a>
+		<div class="right icon menu">
+            <a id="min_window_bt" class="item"><i class="minus icon"></i></a>
+            <a id="max_window_bt" class="item"><i class="window restore outline icon"></i></a>
+            <a id="close_window_bt" class="item"><i class="close icon icon"></i></a>
+        </div>
 	</div>
 
 
@@ -224,25 +230,6 @@
 
 </div>
 
-
-
-
-<script type="text/javascript">
-
-$('.ui.labeled.icon.sidebar')
-	.sidebar('toggle')
-	.sidebar('attach events', '.menu .item');
-// using context
-// $('.context.example .ui.labeled.icon.sidebar')
-//   .sidebar({
-//     context: $('.context.example .left')
-//   })
-//   .sidebar('attach events', '.context.example .menu .item')
-// ;
-// $('.demo.sidebar')
-// 	.sidebar('setting', 'transition', 'overlay')
-// 	.sidebar('toggle');
-</script>
 
 
 </body>
