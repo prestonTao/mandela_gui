@@ -1,0 +1,22 @@
+<html> 
+<head> 
+<title>test</title>
+<meta http-equiv="Content-type" content="text/html; charset=utf-8"/>
+<meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
+</head> 
+<script type="text/javascript"> 
+function say() { 
+	console.log("parant");
+} 
+function callChild(){ 
+	console.log("callChild");
+	//document.frames("myFrame").f1(); 
+	myFrame.window.say(); 
+} 
+callChild();
+</script> 
+<body> 
+<input type=button value="调用child.html中的函数say()" οnclick="alert(1);"> 
+<iframe name="myFrame" src="child.html"></iframe> 
+</body> 
+</html>

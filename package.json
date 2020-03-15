@@ -4,19 +4,48 @@
   "description": "",
   "main": "main.js",
   "scripts": {
-    "start": "electron .",
-    "pack": "electron-builder --dir",
-    "dist": "electron-builder"
+    "start": "electron ."
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "shelljs": "^0.8.3"
   },
-  "build": {
-    "appId": "app",
-    "mac": {
-      "category": "your.app.category.type"
+"build": {
+    "appId": "com.dapaidang.app",
+    "electronVersion": "8.1.1",
+    "directories": {
+      "output": "build"
+    },
+    "publish": [
+      {
+        "provider": "generic",
+        "url": "http://www.baidu.com/"
+      }
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "img/icon.ico"
+    },
+    "nsis": {
+        "oneClick": false,
+        "guid": "xxxx",
+        "perMachine": true,
+        "allowElevation": true,
+        "allowToChangeInstallationDirectory": true,
+        "installerIcon": "img/icon.ico", 
+        "uninstallerIcon": "img/icon.ico", 
+        "installerHeaderIcon": "img/icon.ico",
+        "createDesktopShortcut": true, 
+        "createStartMenuShortcut": true,
+        "shortcutName": "xxxx"
     }
+  },
+ "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "electron .",
+    "pack": "electron-packager . myFirstElectron --win --out ./dist --arch=x64 --app-version=0.0.1 --electron-version=8.1.1",
+    "dist": "electron-builder",
+    "dist-win": "electron-builder --win --x64"
   }
 }

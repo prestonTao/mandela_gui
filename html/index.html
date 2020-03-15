@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>区块链导航窗口</title>
+<!--     <script>
+    window.nodeRequire = require;
+    delete window.require;
+    delete window.exports;
+    delete window.module;
+    </script> -->
+ 
+	<script>window.$ = window.jQuery = require('./js/jquery-1.12.4.min.js');</script>
+    <!-- <script type="text/javascript" src="./js/jquery-1.12.4.min.js"></script> -->
+    <script type="text/javascript" src="./js/Calculator.min.js"></script>
+    <script type="text/javascript" src="./Semantic-UI-CSS-2.4/semantic.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="./Semantic-UI-CSS-2.4/semantic.min.css">
+	<!-- <script type="text/javascript" src="./js/utils.js"></script> -->
+    <script type="text/javascript">
+    	const ipcRenderer = require('electron').ipcRenderer;
+
+
+		var config = null;
+		var opt = null;
+
+		window.daying = function(){
+			alert(456);
+		}
+		function daying(){
+			alert(123);
+		}
+
+
+		ipcRenderer.on('recv_config', (event, arg) => {
+			// console.log(arg) // prints "pong"
+			config = arg;
+			// init();
+		})
+		ipcRenderer.send('send_config', 'ping');
+
+
+		function postNode(params,callFun){
+		    console.log(params);
+		    $.ajax({
+		        url: "http://"+config.WebAddr+":"+config.WebPort+"/rpc",
+		        type:"POST",
+		        secureuri:false,
+		        headers:{'Content-Type':'application/json;charset=utf8','user':config.RpcUser,"password":config.RpcPassword},
+		        data:params,
+		        // async:false,
+		        dateType:'json',
+		        success:callFun
+		    });
+		}
+
+
+		/*
+		    循环获取消息
+		*/
+		var newmsgCallback = null;
+		function loopGetMeg(callback){
+		    postNode(`{"method":"getnewmsg"}`,function(data){
+		        console.log(data);
+		        if(data.code != 2000){
+		            return;
+		        }
+		        if($(".nav_bt.meg_lable.label") == null){ 
+		            $(".nav_bt.meg_lable").append('<div class="ui red empty circular label"></div>');
+		        }
+		        loopGetMeg(callback);
+		        //开始回调方法
+		        if(callback != null){
+		        	callback(data);
+		        }
+		        console.log("end");
+		    });
+		    // setTimeout("loopGetMeg()", 1000);
+		}
+
+
+
+
+    	//新消息回调方法
+	    newmsgCallback = function(data){
+	    	//
+	    }
+		$(document).ready(function() {
+			$('.ui.labeled.icon.sidebar')
+			    .sidebar('toggle')
+			    .sidebar('attach events', '.nav_bt');
+
+			$("#close_window_bt").on("click",function(event){
+				ipcRenderer.send('window_close', 'ping');
+			});
+			$("#max_window_bt").on("click",function(event){
+				ipcRenderer.send('window_max', 'ping');
+			});
+			$("#min_window_bt").on("click",function(event){
+				ipcRenderer.send('window_min', 'ping');
+			});
+
+			config = ipcRenderer.sendSync('send_config', 'ping');
+		    opt = {
+		        url: "http://"+config.WebAddr+":"+config.WebPort+"/rpc",
+		        type:"POST",
+		        headers:{'Content-Type':'application/json;charset=utf8','user':config.RpcUser,"password":config.RpcPassword},
+		        data:`{"method":"getinfo"}`,
+		        // async:false,
+		        dateType:'json'
+		    }
+
+		    loopGetMeg(newmsgCallback);
+
+		    $("#browser").click(function(){
+		        $('#index_content_embed').attr("src", "./wallet/wallet.html");
+		        return false;
+		    });
+		    $("#im").click(function(){
+		        $('#index_content_embed').attr("src", "./im/im.html");
+		        return false;
+		    });
+		    $("#friends").click(function(){
+		        $('#index_content_embed').attr("src", "./firends/firends_list.html");
+		        return false;
+		    });
+		    $("#files").click(function(){
+		        $('#index_content_embed').attr("src", "./files/files_store.html");
+		        return false;
+		    });
+		    $("#wallet").click(function(){
+		        $('#index_content_embed').attr("src", "./wallet/wallet.html");
+		        return false;
+		    });
+		    $("#wrench").click(function(){
+		        $('#index_content_embed').attr("src", "./wallet/wallet.html");
+		        return false;
+		    });
+
+
+
+
+		});
+	</script>
+	
+</head>
+<body>
+
+	
+
+
+
+<div class="ui left demo vertical inverted visible sidebar labeled icon menu">
+	<a id="browser" href="./browser.html" class="item nav_bt">
+        <i class="browser icon"></i>浏览器
+    </a>
+    <a id="im" href="./im.html" class="active item nav_bt">
+        <i class="comments icon"></i>聊天
+    </a>
+    <a id="friends" href="./friends.html" class="item nav_bt">
+        <i class="address book outline icon"></i>联系人
+    </a>
+    <a id="files" href="./files.html" class="item nav_bt">
+        <i class="folder icon"></i>云存储
+    </a>
+    <a id="wallet" class="item nav_bt">
+        <i class="payment icon"></i>钱包
+    </a>
+    <a id="wrench" href="./info_self.html" class="item nav_bt">
+        <i class="wrench icon"></i>设置
+    </a>
+</div>
+
+<div class="pusher">
+	<div class="ui top attached demo menu">
+		<a class="item nav_bt"><i class="sidebar icon"></i>菜单 </a>
+		<div class="right icon menu">
+            <a id="min_window_bt" class="item"><i class="minus icon"></i></a>
+            <a id="max_window_bt" class="item"><i class="window restore outline icon"></i></a>
+            <a id="close_window_bt" class="item"><i class="close icon icon"></i></a>
+        </div>
+	</div>
+
+
+	<div style="width:100vw;height:calc(100vh - 42px); border:red solid 0px;">
+		<!-- <div id="index_content_embed" class="ui embed" data-placeholder="./firends/firends_list.html"></div> -->
+		<iframe id="index_content_embed" width="100%" height="100%" src="./wallet/wallet.html" style="border: 0px;margin: 0px;"></iframe>
+	</div>
+
+
+
+
+
+	
+
+
+
+
+
+</div>
+
+
+
+
+
+
+
+
+</body>
+</html>

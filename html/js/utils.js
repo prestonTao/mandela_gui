@@ -1,18 +1,64 @@
-const ipcRenderer = require('electron').ipcRenderer;
-$(document).ready(function() {
-	$('.ui.labeled.icon.sidebar')
-	    .sidebar('toggle')
-	    .sidebar('attach events', '.nav_bt');
 
-	$("#close_window_bt").on("click",function(event){
-		ipcRenderer.send('window_close', 'ping');
-	});
-	$("#max_window_bt").on("click",function(event){
-		ipcRenderer.send('window_max', 'ping');
-	});
-	$("#min_window_bt").on("click",function(event){
-		ipcRenderer.send('window_min', 'ping');
-	});
+
+$(document).ready(function() {
+
+	// var config = 
+	console.log("start");
+	// alert();
+	// window.parent.document.alert();
+	console.log(window);
+	// console.log(parent);
+	// window.parent.window.daying();
+	// console.log(config);
+
+	var funName = "daying";
+	var path = "parent";
+	var have = false;
+	for(var one in parent){
+		if(one == funName){
+			path = path + "." + funName;
+			console.log(path);
+			have = true;
+			break
+		}
+		if(have){break}
+
+		for(var a in one){
+			if(a == funName){
+				path = path + "." + a + "." + funName;
+				console.log(path);
+				have = true;
+				break
+			}
+			if(have){break}
+
+			for(var b in a){
+				if(b == funName){
+					path = path + "." + a + "." + b + "." + funName;
+					console.log(path);
+					have = true;
+					break
+				}
+				if(have){break}
+				for(var c in b){
+					if(c == funName){
+						path = path + "." + a + "." + b + "." + c + "." + funName;
+						console.log(path);
+						have = true;
+						break
+					}
+					if(have){break}
+				}
+			}
+			
+		}
+		// console.log(one);
+		
+	}
+
+
+	console.log("end");
+
 });
 
 

@@ -8,119 +8,137 @@
     <script type="text/javascript" src="./Semantic-UI-CSS-2.4/semantic.min.js"></script>
     <link rel="stylesheet" type="text/css" href="./Semantic-UI-CSS-2.4/semantic.min.css">
     <style type="text/css">
-    body {
-      background-color: #DADADA;
-    }
-    body > .grid {
-      height: 100%;
-    }
-    .image {
-      margin-top: -100px;
-    }
-    .column {
-      max-width: 450px;
-    }
-  </style>
-  <script>
-    //在渲染器进程 (网页) 中。
-    // const { ipcRenderer } = require('electron')
-    const ipc = require('electron').ipcRenderer;
-    
+      body {
+          background-color: #DADADA;
+      }
+      body > .grid {
+          height: 100%;
+      }
+      .image {
+          margin-top: -100px;
+      }
+      .column {
+          max-width: 450px;
+      }
+    </style>
+    <script>
+        //在渲染器进程 (网页) 中。
+        // const { ipcRenderer } = require('electron')
+        const ipc = require('electron').ipcRenderer;
+        var init = false;
 
-    // ipc.on('asynchronous-reply', (event, arg) => {
-    //   console.log(arg) // prints "pong"
-    // })
+        // ipc.on('asynchronous-reply', (event, arg) => {
+        //   console.log(arg) // prints "pong"
+        // })
 
-  $(document).ready(function() {
-  	
+        $(document).ready(function() {
 
-      $('.ui.form').form({
-        // onsubmit:{return false;},
-        fields: {
-          password: {
-            identifier  : 'password',
-            rules: [
-              {
-                type   : 'empty',
-                prompt : '请输入您的密码'
-              },
-              {
-                type   : 'length[6]',
-                prompt : '密码必须至少为6个字符'
-              }
-            ]
-          }
-        }
-      });
+            $('.ui.form').form({
+                // onsubmit:{return false;},
+                fields: {
+                    password: {
+                        identifier  : 'password',
+                        rules: [
+                            {
+                                type   : 'empty',
+                                prompt : '请输入您的密码'
+                            },
+                            {
+                                type   : 'length[6]',
+                                prompt : '密码必须至少为6个字符'
+                            }
+                        ]
+                    }
+                }
+            });
 
-
-
-      $("#loginBT").click(function(event){
-          if( $('.ui.form').form('is valid')) {
-              // form is valid (both email and name)
-              // console.log("clent 1111")
-              var pwd = $("#password").val();
-              if(pwd.length > 6){
-                  console.log("clent 222222")
-                  // api.register("11111111");
-                  // login.login("112233445566");
-                  // console.log(ipcRenderer.sendSync('synchronous-message', 'ping')) // prints "pong"
-                  // console.log("clent 123") // prints
-                  ipc.send('send_password', pwd)
-                  console.log("clent 333")
-                  
-              }
-              console.log("clent 444")
-              return false;
-          }else{
-
-          }
-        // event.preventDefault();
-    });
+            
+            var walletExists = ipc.sendSync('get_wallet_db_exists', 'ping');
+            if(walletExists){
+                $("#first_peer_bt").hide();
+            }else{
+                $("#first_peer_bt").show();
+                $("#first_peer_bt").click(function(event){
+                    init = true;
+                    $("#loginBT").click();
+                    return false;
+                });
+            }
+        	
 
 
 
 
-  });
-</script>
-</head>
+
+            $("#loginBT").click(function(event){
+                if( $('.ui.form').form('is valid')) {
+                    // form is valid (both email and name)
+                    // console.log("clent 1111")
+                    var pwd = $("#password").val();
+                    if(pwd.length > 6){
+                        console.log("clent 222222")
+                        // api.register("11111111");
+                        // login.login("112233445566");
+                        // console.log(ipcRenderer.sendSync('synchronous-message', 'ping')) // prints "pong"
+                        // console.log("clent 123") // prints
+                        var params = {init:init,pwd: pwd};
+                        ipc.send('send_password', params)
+                        console.log("clent 333")
+                        
+                    }
+                    console.log("clent 444")
+                    return false;
+                }else{
+
+                }
+              // event.preventDefault();
+          });
+
+
+
+
+        });
+    </script>
+    </head>
 <body>
 
 
 <div class="ui middle aligned center aligned grid">
-  <div class="column">
-    <h2 class="ui teal image header">
-      <!-- <img src="./Login Example - Semantic_files/logo.png" class="image"> -->
-      <div class="content">
-        登录
-      </div>
-    </h2>
-    <form class="ui large form">
-      <div class="ui stacked segment">
-        <!-- <div class="field">
-          <div class="ui left icon input">
-            <i class="user icon"></i>
-            <input type="text" name="email" placeholder="E-mail address">
-          </div>
-        </div> -->
-        <div class="field">
-          <div class="ui left icon input">
-            <i class="lock icon"></i>
-            <input id="password" type="password" name="password" placeholder="Password">
-          </div>
+    <div class="column">
+        <h2 class="ui teal image header">
+            <!-- <img src="./Login Example - Semantic_files/logo.png" class="image"> -->
+            <div class="content">
+                登录
+            </div>
+        </h2>
+        <form class="ui large form">
+            <div class="ui stacked segment">
+            <!-- <div class="field">
+                <div class="ui left icon input">
+                <i class="user icon"></i>
+                <input type="text" name="email" placeholder="E-mail address">
+                </div>
+            </div> -->
+                <div class="field">
+                    <div class="ui left icon input">
+                        <i class="lock icon"></i>
+                        <input id="password" type="password" name="password" placeholder="Password">
+                    </div>
+                </div>
+                <div id="loginBT" class="ui fluid large teal submit button">登录</div>
+<!--                 <div class="ui horizontal divider">Or </div>
+                <div id="first_peer_bt" class="ui fluid large teal submit button">启动私有网络</div> -->
+            </div>
+
+            <div class="ui error message"></div>
+
+        </form>
+
+        <div class="ui message">
+            <a href="./connect_remote.html">连接远程节点</a>&nbsp;&nbsp;&nbsp;&nbsp;
+            <a id="first_peer_bt" href="">启动私有网络</a>
         </div>
-        <div id="loginBT" class="ui fluid large teal submit button">Login</div>
-      </div>
-
-      <div class="ui error message"></div>
-
-    </form>
-
-    <div class="ui message">
-        <a href="./connect_remote.html">连接远程节点</a>&nbsp;&nbsp;&nbsp;&nbsp;
-        <a href="./">启动私有网络</a>
     </div>
-  </div>
 </div>
 
 

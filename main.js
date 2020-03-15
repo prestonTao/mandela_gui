@@ -16,6 +16,7 @@ let childProcess="";
 let peer = null;
 let showWindow = false;
 let walletConfig = null;
+let haveWalletdb = false;
 
 
 
@@ -23,6 +24,13 @@ function createWindow () {
 
     var data = fs.readFileSync(path.join(__dirname, 'conf', "config.json"),'utf-8');
     walletConfig = JSON.parse(data);
+
+
+    fs.exists(path.join(__dirname, 'wallet',"data", "LOCK"), function(exists) {
+        // console.log(exists ? "创建成功" : "创建失败");
+        console.log("wallet is have "+exists);
+        haveWalletdb = exists ? true : false;
+    });
 
 
 
@@ -99,6 +107,12 @@ function loadPage(){
 
 }
 
+/*
+    获取钱包数据库是否存在
+*/
+ipcMain.on('get_wallet_db_exists', (event, arg) => {
+    event.returnValue = haveWalletdb;
+})
 
 /*
     传递输入的密码，并使用密码启动服务器端
@@ -108,10 +122,12 @@ ipcMain.on('send_password', (event, arg) => {
     // event.reply('asynchronous-reply', 'pong')
 
     // Shell.start(arg)
-    childProcess = startPeer()
+    childProcess = startPeer(arg);
     // showWindow = true;
     // child.close()
-     win.loadURL(`file://${__dirname}/html/wallet.html`);
+    win.setBounds({ width: 1200,height: 800 });
+    win.center();
+    win.loadURL(`file://${__dirname}/html/index.html`);
 
 })
 
@@ -140,7 +156,9 @@ ipcMain.on('send_config', (event, arg) => {
 */
 ipcMain.on('connect_remote_node', (event, arg) => {
     walletConfig = arg;
-    win.loadURL(`file://${__dirname}/html/wallet.html`);
+    win.setBounds({ width: 1200,height: 800 });
+    win.center();
+    win.loadURL(`file://${__dirname}/html/index.html`);
 })
 
 
@@ -230,8 +248,14 @@ switch (process.platform) {
 
 
 
-async function startPeer(){
-    peer = exec('peer_root.exe init', (err, stdout, stderr) => {
+async function startPeer(arg){
+    var cmd = "peer_root.exe";
+    if(arg.init){
+        cmd = cmd + " init"
+    }
+    cmd = cmd + " -walletpwd="+arg.pwd
+    console.log(cmd);
+    peer = exec(cmd, (err, stdout, stderr) => {
     if (err) {
         console.error(err);
         return;

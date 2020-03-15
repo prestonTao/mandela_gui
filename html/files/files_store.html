@@ -35,51 +35,13 @@
     </style>
 
     <script type="text/javascript">
-        var config = null;
-        var opt = null;
-        var url = "";
         var oldSelectedFiles = null;
         var filelist = null;
 
         
-        function countSecond(){　
-            // setTimeout("countSecond()", 1000)
-            $.ajax({ url: "http://"+config.WebAddr+":"+config.WebPort+"/rpc",
-            type:"POST",
-            headers:{'Content-Type':'application/json;charset=utf8','user':config.RpcUser,"password":config.RpcPassword},
-            data:`{"method":"getinfo"}`,
-            // async:false,
-            dateType:'json',
-            // context: document.body, 
-            success: function(data){
-                // $(this).addClass("done");
-                console.log(data);
-                console.log(data.result.CurrentBlock);
-                console.log(data.result.HighestBlock);
-
-                // $("#chain_height").text(data.result.CurrentBlock);
-                // $("#new_height").text(data.result.HighestBlock);
-                // var calculator=new Calculator();
-                // var x = calculator.divide(data.result.balance, 100000000);
-                // $("#chain_balance").text(x);
 
 
-            }});
-        }
 
-        function postNode(params,callFun){
-            console.log(params);
-            $.ajax({
-                url: "http://"+config.WebAddr+":"+config.WebPort+"/rpc",
-                type:"POST",
-                secureuri:false,
-                headers:{'Content-Type':'application/json;charset=utf8','user':config.RpcUser,"password":config.RpcPassword},
-                data:params,
-                // async:false,
-                dateType:'json',
-                success:callFun
-            });
-        }
 
         /*
             隐藏文件信息窗口
@@ -197,15 +159,6 @@
 
     
         $(document).ready(function() {
-            config = ipcRenderer.sendSync('send_config', 'ping');
-            opt = {
-                url: "http://"+config.WebAddr+":"+config.WebPort+"/rpc",
-                type:"POST",
-                headers:{'Content-Type':'application/json;charset=utf8','user':config.RpcUser,"password":config.RpcPassword},
-                data:`{"method":"getinfo"}`,
-                // async:false,
-                dateType:'json'
-            }
             // countSecond();
             flashStoreSize();
             getFileList();

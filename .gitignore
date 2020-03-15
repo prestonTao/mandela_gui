@@ -11,10 +11,16 @@
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
 *.zip
+*.log
 go.sum
 
 logs
-
+wallet
+out
+store
+imfile
+dist
+build
 example
 test/wallet/
 test/wallet1/
