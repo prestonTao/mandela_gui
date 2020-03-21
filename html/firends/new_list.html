@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>通信录</title>
+    <script type="text/javascript" src="../js/jquery-1.12.4.min.js"></script>
+    <script type="text/javascript" src="../js/Calculator.min.js"></script>
+    <script type="text/javascript" src="../Semantic-UI-CSS-2.4/semantic.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="../Semantic-UI-CSS-2.4/semantic.min.css">
+    <script type="text/javascript" src="../js/utils.js"></script>
+    <script type="text/javascript">
+
+        //给好友列表添加事件绑定
+        function addEvent(){
+            //添加事件前先删除事件
+            $("#new_firends_list .button").off();
+
+            //给列表添加点击事件
+            $("#new_firends_list .button").on("click",function(event){
+                // console.log("111111111111");
+                var selectFirendNetid = $(this).next("div").text();
+                // var selectFirendNetid = $(this).attr("netid");
+                // console.log(selectFirendNetid);
+                // selectFirendNetid = $(".active .item .netid").text();
+                // console.log(selectFirendNetid);
+                // $("#im_message_embed").attr("src","msg_content.html");
+                // window.frames["iframe_ID"].document
+                // console.log("3333333333333"+selectFirendNetid);
+                window.top.postNode(`{"method":"agreetoadd","params":{"id":"`+selectFirendNetid+`"}}`,function(data){
+                    console.log(data);
+                    
+
+                });
+            });
+
+
+        }
+
+        $(document).ready(function() {
+
+
+            window.top.postNode(`{"method":"getfriendlist"}`,function(data){
+
+                console.log(data);
+                // flashStoreSize();
+                // console.log("222");
+                for(var i=data.result.length; i > 0; i--){
+                    var obj = data.result[i-1];
+                    var name = obj.NodeId;
+                    if(obj.Nickname != ""){
+                        name = obj.Nickname;
+                    }
+                    if(obj.Notename != ""){
+                        name = obj.Notename;
+                    }
+
+                    if(obj.IsAdd != 1){
+                        continue
+                    }
+                    console.log(obj.NodeId);
+                    if(obj.Status == 3){
+                        $("#new_firends_list").append(`    <div class="item">
+                                <div class="right floated content">
+                                    <div netid="`+obj.NodeId+`" class="ui button">已添加</div>
+                                    <div class="netid" style="display:none;">`+obj.NodeId+`</div>
+                                </div>
+                                <img class="ui avatar image" src="../img/touxiang.jpg">
+                                <div class="content">`+name+`</div>
+                            </div>`);
+                    }else{
+                        $("#new_firends_list").append(`    <div class="item">
+                                <div class="right floated content">
+                                    <div class="ui button">接受</div>
+                                    <div style="display:none;">`+obj.NodeId+`</div>
+                                </div>
+                                <img class="ui avatar image" src="../img/touxiang.jpg">
+                                <div class="content">`+name+`</div>
+                            </div>`);
+                    }
+                }
+                addEvent();
+            });
+
+        // //删除文件
+        // $("#newfirend_bt").on('click', function() {
+
+        //     var filehash = $(".selected .card_filename").attr("data");
+
+        //     postNode(`{"method":"","params":{"hash":"`+filehash+`"}}`,function(data){
+
+        //         console.log(data);
+        //         getFileList();
+        //         flashStoreSize();
+        //         console.log("222");
+        //     });
+        // });
+
+
+        });
+    </script>
+</head>
+<body>
+
+	
+
+<div id="new_firends_list" class="ui middle aligned divided list">
+<!--     <div class="item">
+        <div class="right floated content">
+            <div class="ui button">Add</div>
+        </div>
+        <img class="ui avatar image" src="../img/touxiang.jpg">
+        <div class="content">Lena </div>
+    </div>
+    <div class="item">
+        <div class="right floated content">
+            <div class="ui button">Add</div>
+        </div>
+        <img class="ui avatar image" src="../img/touxiang.jpg">
+        <div class="content">Lindsay </div>
+    </div>
+    <div class="item">
+        <div class="right floated content">
+            <div class="ui button">Add</div>
+        </div>
+        <img class="ui avatar image" src="../img/touxiang.jpg">
+        <div class="content">Lindsay </div>
+    </div>
+    <div class="item">
+        <div class="right floated content">
+            <div class="ui button">Add</div>
+        </div>
+        <img class="ui avatar image" src="../img/touxiang.jpg">
+        <div class="content">Mark </div>
+    </div>
+    <div class="item">
+        <div class="right floated content">
+            <div class="ui button">Add</div>
+        </div>
+        <img class="ui avatar image" src="../img/touxiang.jpg">
+        <div class="content">Molly </div>
+    </div> -->
+</div>
+
+
+
+
+</body>
+</html>

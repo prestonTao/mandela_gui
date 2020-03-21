@@ -17,6 +17,7 @@ let peer = null;
 let showWindow = false;
 let walletConfig = null;
 let haveWalletdb = false;
+let connect_remote = false;
 
 
 
@@ -73,7 +74,7 @@ function createWindow () {
     // console.log(path.join(__dirname,"html",firstPage));
     fs.exists(path.join(__dirname,"conf","keystore.key"), function(exists) {
         var firstPage = exists ? "login.html" : "register.html";
-        win.loadURL(path.join(__dirname,"html",firstPage))//
+        win.loadFile(path.join(__dirname,"html",firstPage))//
         // console.log(exists ? "yes" : "no");
     });
 
@@ -118,6 +119,7 @@ ipcMain.on('get_wallet_db_exists', (event, arg) => {
     传递输入的密码，并使用密码启动服务器端
 */
 ipcMain.on('send_password', (event, arg) => {
+    connect_remote = false;
     console.log(arg) // prints "ping"
     // event.reply('asynchronous-reply', 'pong')
 
@@ -127,7 +129,24 @@ ipcMain.on('send_password', (event, arg) => {
     // child.close()
     win.setBounds({ width: 1200,height: 800 });
     win.center();
-    win.loadURL(`file://${__dirname}/html/index.html`);
+    // win.loadFile(`file://${__dirname}/html/index.html`);
+    win.loadFile(path.join("html",'index.html'));
+
+
+    var newwin = new BrowserWindow({
+        show: false,
+        width: 1200,
+        height: 800,
+        webPreferences: {
+            preload: path.join(__dirname, 'preload.js'),
+            nodeIntegration: true
+        }
+    })
+    newwin.loadFile(path.join("html",'index.html'));
+    newwin.show()
+    newwin.center();
+    win.close();
+    win = newwin;
 
 })
 
@@ -137,7 +156,7 @@ ipcMain.on('send_password', (event, arg) => {
 ipcMain.on('show_first_page', (event, arg) => {
     fs.exists(path.join(__dirname,"conf","keystore.key"), function(exists) {
         var firstPage = exists ? "login.html" : "register.html";
-        win.loadURL(path.join(__dirname,"html",firstPage))//
+        win.loadFile(path.join(__dirname,"html",firstPage))//
         // console.log(exists ? "yes" : "no");
     });
 })
@@ -156,9 +175,10 @@ ipcMain.on('send_config', (event, arg) => {
 */
 ipcMain.on('connect_remote_node', (event, arg) => {
     walletConfig = arg;
+    connect_remote = true;
     win.setBounds({ width: 1200,height: 800 });
     win.center();
-    win.loadURL(`file://${__dirname}/html/index.html`);
+    win.loadFile(`file://${__dirname}/html/index.html`);
 })
 
 
@@ -267,16 +287,19 @@ async function startPeer(arg){
 
 
 function closePeer(){
+    if(connect_remote){
+        return
+    }
     var data = `{"method":"stopservice"}`;
 
     var opt = {  
         method: "POST",  
-        host: "127.0.0.1",  
-        port: 2080,  
+        host: walletConfig.WebAddr,
+        port: walletConfig.WebPort,
         path: "/rpc",  
         headers: {
-        "user":"test",
-        "password":"testp",
+        "user":walletConfig.RpcUser,
+        "password":walletConfig.RpcPassword,
             "Content-Type": 'application/json',  
             "Content-Length": data.length  
         }  

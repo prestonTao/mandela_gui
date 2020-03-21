@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>个人信息</title>
  
-	<script>window.$ = window.jQuery = require('./js/jquery-1.12.4.min.js');</script>
+	<script type="text/javascript" src="./js/jquery-1.12.4.min.js"></script>
     <script type="text/javascript" src="./js/Calculator.min.js"></script>
     <script type="text/javascript" src="./Semantic-UI-CSS-2.4/semantic.min.js"></script>
     <link rel="stylesheet" type="text/css" href="./Semantic-UI-CSS-2.4/semantic.min.css">
@@ -21,7 +21,7 @@
 	
 
 
-        postNode(`{"method":"getnetworkinfo"}`,function(data){
+        window.parent.postNode(`{"method":"getnetworkinfo"}`,function(data){
 
             console.log(data);
             $("#node_netaddress").text(data.result.netaddr);
@@ -39,77 +39,10 @@
 	
 
 
-
-<div class="ui left demo vertical inverted visible sidebar labeled icon menu">
-	<a id="browser" href="./browser.html" class="item nav_bt">
-        <i class="browser icon"></i>浏览器
-    </a>
-    <a id="im" href="./im.html" class="item nav_bt">
-        <i class="comments icon"></i>聊天
-    </a>
-    <a id="friends" href="./friends.html" class="active item nav_bt">
-        <i class="address book outline icon"></i>联系人
-    </a>
-    <a id="files" href="./files.html" class="item nav_bt">
-        <i class="folder icon"></i>云存储
-    </a>
-    <a id="wallet" href="./wallet.html" class="item nav_bt">
-        <i class="payment icon"></i>钱包
-    </a>
-    <a id="wrench" href="./info_self.html" class="item nav_bt">
-        <i class="wrench icon"></i>设置
-    </a>
-</div>
-
-<div class="pusher">
-	<div class="ui top attached demo menu">
-		<a class="item nav_bt meg_lable"><i class="sidebar icon"></i>菜单 </a>
-		<div class="right icon menu">
-            <a id="min_window_bt" class="item"><i class="minus icon"></i></a>
-            <a id="max_window_bt" class="item"><i class="window restore outline icon"></i></a>
-            <a id="close_window_bt" class="item"><i class="close icon icon"></i></a>
-        </div>
-	</div>
-
-
-
-
-
-
-
-	<div style="float: left; width: 260px; height: calc(100vh - 42px); background:rgb(236,236,236); overflow-y: scroll;overflow-x: hidden; border: red solid 0px;">
-		<div class="ui fluid vertical menu">
-			<div class="item">
-				<div class="ui input"><input type="text" placeholder="Search..."></div>
-			</div>
-			<a class="item">
-				<img class="ui middle aligned mini image" src="./img/touxiang.jpg">
-				<span>Username</span>
-			</a>
-			
-			
-		</div>
-	</div>
-	<div style="float: right;width:calc(100vw - 260px);height:calc(100vh - 42px);border:red solid 0px;background: rgb(250,250,250);">
         <div id="">网络地址</div>
         <div id="node_netaddress"></div>
         <div id="">是否是超级节点</div>
         <div id="node_issuper"></div>
-	</div>
-
-
-
-
-
-
-
-
-
-
-
-
-</div>
-
 
 
 

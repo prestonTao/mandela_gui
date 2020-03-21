@@ -13,6 +13,7 @@
 *.zip
 *.log
 go.sum
+clean_peer.bat
 
 logs
 wallet

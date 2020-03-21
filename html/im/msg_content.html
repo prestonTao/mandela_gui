@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>聊天</title>
+
+    <script type="text/javascript" src="../js/jquery-1.12.4.min.js"></script>
+    <script type="text/javascript" src="../js/Calculator.min.js"></script>
+    <script type="text/javascript" src="../Semantic-UI-CSS-2.4/semantic.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="../Semantic-UI-CSS-2.4/semantic.min.css">
+	<script type="text/javascript" src="../js/utils.js"></script>
+	<style type="text/css">
+		.column{
+			border: red solid 0px;
+		}
+		/*.grid.column{
+			padding: 0px;
+		}*/
+	</style>
+	<script type="text/javascript">
+		var netid = null;
+		$(document).ready(function() {
+			netid = window.parent.selectFirendNetid;
+
+			window.top.postNode(`{"method":"getmsghistory","params":{"recipient":"`+netid+`","id":0}}`,function(data){
+				
+                console.log(data);
+                // flashStoreSize();
+                // console.log("222");
+                // $("#netid").val(data.result.NodeId);
+                // $("#nickname").val(data.result.Nickname);
+                // $("#notename").val(data.result.Notename);
+                // $("#noteinfo").val(data.result.Note);
+                for(var i=0,len=data.result.length; i<len; i++){
+
+                	var one = data.result[i];
+                	if(one.Recipient == "self"){
+                		console.log("给自己",one);
+                		$("#msg_log").append(`<div class="row" style="order:`+one.Unix+`">	<div class="twelve wide column">
+								<img class="ui mini image" src="../img/touxiang.jpg" style="float: left;">
+								<div class="ui compact floating message">
+									<p>`+one.Content+`</p>
+								</div>
+							</div>
+							<div class="four wide column"></div></div>`);
+                	}else{
+                		console.log("给对方",one);
+                		$("#msg_log").append(`<div class="row" style="order:`+one.Unix+`">	<div class="four wide column"></div>
+                				<div class="twelve wide column">
+								<img class="ui mini image" src="../img/touxiang.jpg" style="float: right;">
+								<div class="ui compact olive message"  style="float: right;">
+									<p>`+one.Content+`</p>
+								</div>
+							</div></div>`);
+                	}
+                }
+            });
+
+		});
+	</script>
+
+	
+</head>
+<body style="background: rgb(222,222,222);">
+
+
+<div id="msg_log" class="ui grid" style="">
+<!-- 	<div class="four wide column"></div>
+	<div class="twelve wide column">
+		<img class="ui mini image" src="../img/touxiang.jpg" style="float: right;">
+		<div class="ui compact olive message"  style="float: right;">
+			<p>每天都可以在你的电子邮箱中发现乐趣。现在注册吧！</p>
+		</div>
+	</div>
+	<div class="twelve wide column">
+		<img class="ui mini image" src="../img/touxiang.jpg" style="float: left;">
+		<div class="ui compact floating message">
+			<p>每天都可以在你的电子邮箱中发现乐趣。现在注册吧！</p>
+		</div>
+	</div>
+	<div class="four wide column"></div> -->
+</div>
+	
+
+
+
+
+
+
+
+</body>
+</html>

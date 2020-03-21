@@ -3,28 +3,129 @@
 <head>
     <meta charset="UTF-8">
     <title>聊天</title>
-<!--     <script>
-    window.nodeRequire = require;
-    delete window.require;
-    delete window.exports;
-    delete window.module;
-    </script> -->
- 
-	<!-- <script>window.$ = window.jQuery = require('./js/jquery-1.12.4.min.js');</script> -->
-	<script type="text/javascript" src="../js/jquery-3.4.1.min.js"></script>
+	<script type="text/javascript" src="../js/jquery-1.12.4.min.js"></script>
     <script type="text/javascript" src="../js/Calculator.min.js"></script>
     <script type="text/javascript" src="../Semantic-UI-CSS-2.4/semantic.min.js"></script>
     <link rel="stylesheet" type="text/css" href="../Semantic-UI-CSS-2.4/semantic.min.css">
+    <script type="text/javascript" src="../wangEditor-3.1.1/release/wangEditor.min.js"></script>
 	<script type="text/javascript" src="../js/utils.js"></script>
+	<style type="text/css">
+		.active{
+			background: rgb(220,220,220);
+		}
+	</style>
     <script type="text/javascript">
-    	//新消息回调方法
-	    newmsgCallback = function(data){
-	    	//
-	    }
+    	/*
+    		获取地址中的参数
+			例如：http://www.abc.com/test.php?id=1&from=index
+    		不传name返回所有值，否则返回对应值
+    	*/
+    	function getUrlParams(name) {
+		    var url = window.location.search;
+		    if (url.indexOf('?') == 1) { return false; }
+		    url = url.substr(1);
+		    url = url.split('&');
+		    var name = name || '';
+		    var nameres;
+		    // 获取全部参数及其值
+		    for(var i=0;i<url.length;i++) {
+		        var info = url[i].split('=');
+		        var obj = {};
+		        obj[info[0]] = decodeURI(info[1]);
+		        url[i] = obj;
+		    }
+		    // 如果传入一个参数名称，就匹配其值
+		    if (name) {
+		        for(var i=0;i<url.length;i++) {
+		            for (const key in url[i]) {
+		                if (key == name) {
+		                    nameres = url[i][key];
+		                }
+		            }
+		        }
+		    } else {
+		        nameres = url;
+		    }
+		    // 返回结果
+		    return nameres;
+		}
+    	
+    	var selectFirendNetid = null;
+
+    	//给好友列表添加事件绑定
+        function addEvent(){
+            //添加事件前先删除事件
+            $(".menu .firend_one").off();
+
+            //给列表添加点击事件
+            $(".menu .firend_one").on("click",function(event){
+            	// console.log("111111111111");
+                selectFirendNetid = $(this).children(".netid").text();
+                // console.log(selectFirendNetid);
+                // selectFirendNetid = $(".active .item .netid").text();
+                // console.log(selectFirendNetid);
+                $("#im_message_embed").attr("src","msg_content.html");
+                // window.frames["iframe_ID"].document
+                // console.log("3333333333333");
+            });
+
+
+        }
+
+
 		$(document).ready(function() {
+
+			var netid = getUrlParams("netid")
+			if(netid != null && netid != ""){
+				selectFirendNetid = netid;
+				$("#im_message_embed").attr("src","msg_content.html");
+			}
+
+			window.parent.postNode(`{"method":"getfriendlist"}`,function(data){
+
+                console.log(data);
+                // flashStoreSize();
+                // console.log("222");
+                for(var i=0,len=data.result.length; i < len; i++){
+                    var obj = data.result[i];
+                    var name = obj.NodeId;
+                    if(obj.Nickname != ""){
+                        name = obj.Nickname;
+                    }
+                    if(obj.Notename != ""){
+                        name = obj.Notename;
+                    }
+                    $("#firends_list").append(`<a class="item firend_one">
+                    		<span class="netid" style="display: none;">`+obj.NodeId+`</span>
+							<img class="ui middle aligned mini image" src="../img/touxiang.jpg">
+							<span>`+name+`</span>
+							<div class="ui red mini circular label">999</div>
+						</a>`);
+                }
+                addEvent();
+
+            });
+
+			// window.parent.daying();
 
 		    $("#expression_bt").click(function(){
 		        $('.expression.modal').modal({inverted: true}).modal('show');
+		    });
+		    // im_message_embed
+		    // $(".firend_one").click(function(event){
+		    // 	$("#im_message_embed").attr("src","msg_content.html");
+		    // });
+
+		    $("#send_msg_bt").click(function(){
+		    	var text = editor.txt.text();
+		    	if(text.length <= 0){
+		    		return
+		    	}
+		    	window.parent.postNode(`{"method":"sendmsg","params":{"address":"`+selectFirendNetid+`","content":"`+text+`"}}`,function(data){
+		    		if(data.code == 2000){
+		    			editor.txt.clear()
+		    		}
+		    	});
 		    });
 
 
@@ -35,71 +136,31 @@
 </head>
 <body>
 
-	
 
 
 
 
-	<div style="float: left; width: 260px; height: calc(100vh - 12px); background:rgb(236,236,236); overflow-y: scroll;overflow-x: hidden; border: red solid 0px;">
-		<div class="ui fluid vertical menu">
-			<div class="item">新的朋友
-				<div class="ui input"><input type="text" placeholder="Search..."></div>
-			</div>
-			<div class="item">好友
-				<div class="menu">
-					<a class="active item">
-						<img class="ui middle aligned mini image" src="../img/touxiang.jpg">
-						<span>Username</span>
-						<div class="ui red mini circular label">999</div>
-					</a>
-					<a class="active item">
-						<img class="ui middle aligned mini image" src="../img/touxiang.jpg">
-						<span>Username</span>
-						<div class="ui red mini circular label">999</div>
-					</a>
-					<a class="active item">
-						<img class="ui middle aligned mini image" src="../img/touxiang.jpg">
-						<span>Username</span>
-						<div class="ui red mini circular label">999</div>
-					</a>
-					<a class="active item">
-						<img class="ui middle aligned mini image" src="../img/touxiang.jpg">
-						<span>Username</span>
-						<div class="ui red mini circular label">999</div>
-					</a>
-			    </div>
-			</div>
-			<a class="item">
-				<img class="ui middle aligned mini image" src="../img/touxiang.jpg">
-				<span>Username</span>
-				<div class="ui red mini circular label">999</div>
-			</a>
-			<a class="item">
-				<img class="ui middle aligned mini image" src="../img/touxiang.jpg">
-				<span>Username</span>
-				<div class="ui red mini circular label">999</div>
-			</a>
-			
-			
-		</div>
+
+	<div id="firends_list" class="ui visible left vertical sidebar menu" style="overflow-x: hidden;">
 	</div>
-	<div style="float: right;width:calc(100vw - 260px);border:red solid 0px;">
-		<div id="tttt" style="height:calc(100vh - 200px); border: red solid 0px;">
-			<iframe id="im_message_embed" src="./msg_default.html" style="width: 100%; height:100%; margin: 0px; border: red solid 0px;"></iframe>
-		</div>
-		<div style="height: 158px;border: red solid 0px;background: rgb(240,240,240);">
-			<div style="border: red solid 0px;">
-				<i id="expression_bt" class="smile outline icon"></i>
-				<i class="image outline icon"></i>
-				<i class="folder outline icon"></i>
+	<div class="pusher" style="height: 100vh; padding: 0px; border: red solid 0px;">
+		<div class="ui basic segment" style="margin: 0px;padding: 0px;">
+			<div style="width:calc(100vw - 260px); height:calc(100vh - 200px); border: red solid 0px;">
+				<iframe id="im_message_embed" width="100%" height="100%" src="./msg_default.html" style=" border: red solid 0px;"></iframe>
 			</div>
-			<div style="height: 100px; border: red solid 0px;">
-
-
-
-			</div>
-			<div style="border: red solid 0px;">
-				<button class="compact ui button" style="float: right;margin-right: 28px;">发送</button>
+			<div style="width:calc(100vw - 260px);  height: 200px;border: red solid 0px;background: rgb(240,240,240);overflow-x: hidden;">
+				<div style="border: red solid 0px;">
+					<i id="expression_bt" class="smile outline icon"></i>
+					<i class="image outline icon"></i>
+					<i class="folder outline icon"></i>
+					<div id="msg_editor_toolbar" class="toolbar" style="float: left;"></div>
+				</div>
+				<div style="height: 134px; border: red solid 0px;overflow-x: hidden;clear: both;">
+					<div id="msg_editor_content" style="height: 134px;"></div>
+				</div>
+				<div style="border: red solid 0px;">
+					<button id="send_msg_bt" class="compact ui button" style="float: right;margin-right: 28px;">发送</button>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -108,14 +169,13 @@
 
 
 
+
+
+
+
+
+
 	
-
-
-
-
-
-
-
 
 
 <!-- 表情图标模态窗口 -->
@@ -138,7 +198,92 @@
 	</div>
 	</div>
 
+	<script type="text/javascript">
+        var E = window.wangEditor
+        var editor = new E("#msg_editor_toolbar", '#msg_editor_content')
+        editor.customConfig.uploadImgShowBase64 = true   // 使用 base64 保存图片
+        editor.customConfig.onfocus = function () {
+	        console.log("onfocus")
 
+	        $("#msg_editor_content").css("background","rgb(255,255,255)");
+	    }
+        editor.customConfig.onblur = function (html) {
+	        // html 即编辑器中的内容
+	        console.log('onblur', html)
+	        $("#msg_editor_content").css("background","rgb(240,240,240)");
+
+	    }
+        editor.customConfig.menus = [
+		    'emoticon',  // 表情
+		    'image',  // 插入图片
+		    'video'  // 插入视频
+        ]
+        editor.customConfig.emotions = [
+            {
+                // tab 的标题
+                title: '默认',
+                // type -> 'emoji' / 'image'
+                type: 'image',
+                // content -> 数组
+                content: [
+                    {
+                        alt: '[坏笑]',
+                        src: 'http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/50/pcmoren_huaixiao_org.png'
+                    },
+                    {
+                        alt: '[舔屏]',
+                        src: 'http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/40/pcmoren_tian_org.png'
+                    },
+                    {
+                        alt: '[污]',
+                        src: 'http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/3c/pcmoren_wu_org.png'
+                    },
+                    {
+                        alt: '[允悲]',
+                        src: 'http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/2c/moren_yunbei_org.png'
+                    }
+                ]
+            },
+            {
+                // tab 的标题
+                title: '新浪',
+                // type -> 'emoji' / 'image'
+                type: 'image',
+                // content -> 数组
+                content: [
+                    {
+                        src: 'http://img.t.sinajs.cn/t35/style/images/common/face/ext/normal/7a/shenshou_thumb.gif',
+                        alt: '[草泥马]'
+                    },
+                    {
+                        src: 'http://img.t.sinajs.cn/t35/style/images/common/face/ext/normal/60/horse2_thumb.gif',
+                        alt: '[神马]'
+                    },
+                    {
+                        src: 'http://img.t.sinajs.cn/t35/style/images/common/face/ext/normal/bc/fuyun_thumb.gif',
+                        alt: '[浮云]'
+                    }
+                ]
+            },
+            {
+                // tab 的标题
+                title: 'emoji',
+                // type -> 'emoji' / 'image'
+                type: 'emoji',
+                // content -> 数组
+                content: '😀 😃 😄 😁 😆 😅 😂 😊 😇 🙂 🙃 😉 😌 😍 😘 😗 😙 😚 😋 😜 😝 😛 🤑 🤗 🤓 😎 😏 😒 😞 😔 😟 😕 🙁  😣 😖 😫 😩 😤 😠 😡 😶 😐 😑 😯 😦 😧 😮 😲 😵 😳 😱 😨 😰 😢 😥 😭 😓 😪 😴 🙄 🤔 😬 🤐'.split(/\s/)
+            },
+            {
+                // tab 的标题
+                title: 'emoji手势',
+                // type -> 'emoji' / 'image'
+                type: 'emoji',
+                // content -> 数组
+                content: ['🙌', '👏', '👋', '👍', '👎', '👊', '✊', '️👌', '✋', '👐', '💪', '🙏', '️👆', '👇', '👈', '👉', '🖕', '🖐', '🤘']
+            }
+        ]
+        editor.create()
+    </script>
 
 </body>
 </html>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>通信录</title>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
+ 
+    <script type="text/javascript" src="../js/jquery-1.12.4.min.js"></script>
+    <script type="text/javascript" src="../js/Calculator.min.js"></script>
+    <script type="text/javascript" src="../Semantic-UI-CSS-2.4/semantic.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="../Semantic-UI-CSS-2.4/semantic.min.css">
+    <script type="text/javascript" src="../js/utils.js"></script>
+    <script type="text/javascript">
+
+
+        $(document).ready(function() {
+
+        
+            // window.parent.postNode(`{"method":"getfriendlist"}`,function(data){
+
+            //     console.log(data);
+            //     // flashStoreSize();
+            //     console.log("222");
+            // });
+
+            //新的朋友
+            $("#add_bt").on('click', function() {
+                console.log("add_bt");
+                // $("#firends_content_embed").attr("src","new_list.html");
+                var netid = $("#netid").val();
+                var notename = $("#notename").val();
+                window.top.postNode(`{"method":"addfriend","params":{"id":"`+netid+`","notename":"`+notename+`"}}`,function(data){
+
+                    console.log(data);
+                    // flashStoreSize();
+                    console.log("222");
+                });
+            });
+
+        });
+    </script>
+</head>
+<body>
+
+  
+
+
+<form class="ui form">
+    <div class="field">
+        <label>节点地址</label>
+        <input id="netid" type="text" name="first-name" placeholder="First Name">
+    </div>
+    <div class="field">
+        <label>备注名称</label>
+        <input id="notename" type="text" name="last-name" placeholder="Last Name">
+    </div>
+    <div class="field">
+        <div class="ui checkbox">
+            <input type="checkbox" tabindex="0" class="hidden">
+            <label>我同意本条款和条件</label>
+        </div>
+    </div>
+    <button id="add_bt" class="ui button" type="submit">添加</button>
+</form>
+
+
+
+
+
+
+
+
+</body>
+</html>
