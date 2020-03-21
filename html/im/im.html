@@ -81,7 +81,7 @@
 				$("#im_message_embed").attr("src","msg_content.html");
 			}
 
-			window.parent.postNode(`{"method":"getfriendlist"}`,function(data){
+			window.parent.postNode(true, `{"method":"getfriendlist"}`,function(data){
 
                 console.log(data);
                 // flashStoreSize();
@@ -121,7 +121,7 @@
 		    	if(text.length <= 0){
 		    		return
 		    	}
-		    	window.parent.postNode(`{"method":"sendmsg","params":{"address":"`+selectFirendNetid+`","content":"`+text+`"}}`,function(data){
+		    	window.parent.postNode(true, `{"method":"sendmsg","params":{"address":"`+selectFirendNetid+`","content":"`+text+`"}}`,function(data){
 		    		if(data.code == 2000){
 		    			editor.txt.clear()
 		    		}

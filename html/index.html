@@ -17,12 +17,18 @@
     <script type="text/javascript" src="./Semantic-UI-CSS-2.4/semantic.min.js"></script>
     <link rel="stylesheet" type="text/css" href="./Semantic-UI-CSS-2.4/semantic.min.css">
 	<!-- <script type="text/javascript" src="./js/utils.js"></script> -->
+	<style type="text/css">
+		.nav_active_bgcolor{
+			background-color:#ff8547;
+		}
+	</style>
     <script type="text/javascript">
     	const ipcRenderer = require('electron').ipcRenderer;
 
 
 		var config = null;
 		var opt = null;
+		var firends = null;
 
 
 
@@ -35,7 +41,7 @@
 		ipcRenderer.send('send_config', 'ping');
 
 
-		function postNode(params,callFun){
+		function postNode(async,params,callFun){
 		    console.log(params);
 		    $.ajax({
 		        url: "http://"+config.WebAddr+":"+config.WebPort+"/rpc",
@@ -43,19 +49,74 @@
 		        secureuri:false,
 		        headers:{'Content-Type':'application/json;charset=utf8','user':config.RpcUser,"password":config.RpcPassword},
 		        data:params,
-		        // async:false,
+		        async:async,
 		        dateType:'json',
 		        success:callFun
 		    });
 		}
 
+		/*
+			拉取联系人列表
+		*/
+		function getFirendList(callback){
+		    postNode(true ,`{"method":"getfriendlist"}`,function(data){
+		        console.log(data);
+		        if(data.code != 2000){
+		            return;
+		        } 
+		        firends = data.result;
+		        for(var i=data.result.length; i > 0; i--){
+                    var obj = data.result[i-1];
+                    var name = obj.NodeId;
+                    if(obj.Nickname != ""){
+                        name = obj.Nickname;
+                    }
+                    if(obj.Notename != ""){
+                        name = obj.Notename;
+                    }
 
+                    if(obj.IsAdd != 1){
+                        continue
+                    }
+                    if(obj.Read == 2){
+                    	continue
+                    }
+                    //有未读消息
+                	// console.log(obj.NodeId);
+                    $("#friends").css("background-color", "#ff8547");
+                    
+                }
+		        callback();
+		    });
+		    // setTimeout("loopGetMeg()", 1000);
+		}
+
+
+		var newmsgCallbackDefault = function(data){
+	    	//先判断好友列表中是否有这个好友
+	    	var have = false;
+	    	for(var i=0,len=firends.length; i<len; i++){
+	    		var one = firends[i];
+	    		if(one.Id == data.Id){
+	    			have = true
+	    			break;
+	    		}
+	    	}
+	    	if(!have){
+	    		$("#friends").css("background-color", "#ff8547");
+	    		
+	    		// $("#friends").addClass("nav_active_bgcolor");
+	    	}
+
+
+	    }
 		/*
 		    循环获取消息
 		*/
 		var newmsgCallback = null;
-		function loopGetMeg(callback){
-		    postNode(`{"method":"getnewmsg"}`,function(data){
+		function loopGetMeg(){
+		    postNode(true, `{"method":"getnewmsg"}`,function(data){
+		    	loopGetMeg();
 		        console.log(data);
 		        if(data.code != 2000){
 		            return;
@@ -63,12 +124,12 @@
 		        if($(".nav_bt.meg_lable.label") == null){ 
 		            $(".nav_bt.meg_lable").append('<div class="ui red empty circular label"></div>');
 		        }
-		        loopGetMeg(callback);
 		        //开始回调方法
-		        if(callback != null){
-		        	callback(data);
-		        }
-		        console.log("end");
+		        newmsgCallback(data.result);
+		        // if(callback != null){
+		        // 	callback(data);
+		        // }
+		        // console.log("end");
 		    });
 		    // setTimeout("loopGetMeg()", 1000);
 		}
@@ -82,14 +143,20 @@
 	        $('#im').addClass("active");
 		}
 
+		/*
+			清除好友导航按钮颜色样式
+		*/
+		function cleanFirendsNavColor(){
+			// console.log("cleanFirendsNavColor");
+			$("#friends").removeAttr("style");
+		}
 
 
 
-    	//新消息回调方法
-	    newmsgCallback = function(data){
-	    	//
-	    }
+
+
 		$(document).ready(function() {
+			newmsgCallback = newmsgCallbackDefault;
 			// $('.ui.labeled.icon.sidebar')
 			//     .sidebar('toggle')
 			//     .sidebar('attach events', '.nav_bt');
@@ -119,7 +186,12 @@
 		        dateType:'json'
 		    }
 
-		    loopGetMeg(newmsgCallback);
+
+		    //拉取联系人列表
+		    getFirendList(loopGetMeg)
+
+		    //循环接收新消息
+		    // loopGetMeg(newmsgCallback);
 
 		    $("#browser").click(function(){
 		        $('#index_content_embed').attr("src", "./wallet/wallet.html");
@@ -174,7 +246,7 @@
 	    <a id="im" href="./im.html" class="active item nav_bt">
 	        <i class="comments icon"></i>聊天
 	    </a>
-	    <a id="friends" href="./friends.html" class="item nav_bt">
+	    <a id="friends" href="./friends.html" class="item nav_bt nav_active_bgcolor">
 	        <i class="address book outline icon"></i>联系人
 	    </a>
 	    <a id="files" href="./files.html" class="item nav_bt">

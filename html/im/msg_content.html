@@ -22,7 +22,7 @@
 		$(document).ready(function() {
 			netid = window.parent.selectFirendNetid;
 
-			window.top.postNode(`{"method":"getmsghistory","params":{"recipient":"`+netid+`","id":0}}`,function(data){
+			window.top.postNode(true, `{"method":"getmsghistory","params":{"recipient":"`+netid+`","id":0}}`,function(data){
 				
                 console.log(data);
                 // flashStoreSize();

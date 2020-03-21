@@ -26,7 +26,7 @@
                 // $("#im_message_embed").attr("src","msg_content.html");
                 // window.frames["iframe_ID"].document
                 // console.log("3333333333333"+selectFirendNetid);
-                window.top.postNode(`{"method":"agreetoadd","params":{"id":"`+selectFirendNetid+`"}}`,function(data){
+                window.top.postNode(true, `{"method":"agreetoadd","params":{"id":"`+selectFirendNetid+`"}}`,function(data){
                     console.log(data);
                     
 
@@ -39,7 +39,7 @@
         $(document).ready(function() {
 
 
-            window.top.postNode(`{"method":"getfriendlist"}`,function(data){
+            window.top.postNode(true, `{"method":"getfriendlist"}`,function(data){
 
                 console.log(data);
                 // flashStoreSize();
@@ -77,7 +77,14 @@
                                 <div class="content">`+name+`</div>
                             </div>`);
                     }
+                    //如果添加消息是未读状态，则请求修改为已读
+                    if(obj.Read == 1){
+                        window.top.postNode(true, `{"method":"isreadaddfirend","params":{"netid":"`+obj.NodeId+`"}}`,function(data){
+                            
+                        });
+                    }
                 }
+                window.top.cleanFirendsNavColor();
                 addEvent();
             });
 
@@ -86,7 +93,7 @@
 
         //     var filehash = $(".selected .card_filename").attr("data");
 
-        //     postNode(`{"method":"","params":{"hash":"`+filehash+`"}}`,function(data){
+        //     postNode(true, `{"method":"","params":{"hash":"`+filehash+`"}}`,function(data){
 
         //         console.log(data);
         //         getFileList();

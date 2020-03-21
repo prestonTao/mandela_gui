@@ -21,7 +21,7 @@
 	
 
 
-        window.parent.postNode(`{"method":"getnetworkinfo"}`,function(data){
+        window.parent.postNode(true, `{"method":"getnetworkinfo"}`,function(data){
 
             console.log(data);
             $("#node_netaddress").text(data.result.netaddr);

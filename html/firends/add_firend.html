@@ -16,7 +16,7 @@
         $(document).ready(function() {
 
         
-            // window.parent.postNode(`{"method":"getfriendlist"}`,function(data){
+            // window.parent.postNode(true, `{"method":"getfriendlist"}`,function(data){
 
             //     console.log(data);
             //     // flashStoreSize();
@@ -29,7 +29,7 @@
                 // $("#firends_content_embed").attr("src","new_list.html");
                 var netid = $("#netid").val();
                 var notename = $("#notename").val();
-                window.top.postNode(`{"method":"addfriend","params":{"id":"`+netid+`","notename":"`+notename+`"}}`,function(data){
+                window.top.postNode(true, `{"method":"addfriend","params":{"id":"`+netid+`","notename":"`+notename+`"}}`,function(data){
 
                     console.log(data);
                     // flashStoreSize();

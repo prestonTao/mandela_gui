@@ -14,7 +14,7 @@
         // var netid
 
         function getfriendinfo(netid){
-            window.top.postNode(`{"method":"getfriendinfo","params":{"nodeid":"`+netid+`"}}`,function(data){
+            window.top.postNode(true, `{"method":"getfriendinfo","params":{"nodeid":"`+netid+`"}}`,function(data){
 
                 console.log(data);
                 // flashStoreSize();
@@ -35,7 +35,7 @@
             }
 
         
-            // window.parent.postNode(`{"method":"getfriendlist"}`,function(data){
+            // window.parent.postNode(true, `{"method":"getfriendlist"}`,function(data){
 
             //     console.log(data);
             //     // flashStoreSize();

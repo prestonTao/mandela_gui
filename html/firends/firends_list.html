@@ -44,7 +44,7 @@
             window.top.newmsgCallback = 
 
         
-            window.parent.postNode(`{"method":"getfriendlist"}`,function(data){
+            window.parent.postNode(true, `{"method":"getfriendlist"}`,function(data){
 
                 console.log(data);
                 // flashStoreSize();
