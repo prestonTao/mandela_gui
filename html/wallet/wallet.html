@@ -17,57 +17,118 @@
     <link rel="stylesheet" type="text/css" href="../Semantic-UI-CSS-2.4/semantic.min.css">
 
     <script type="text/javascript">
-    	var config = null;
-    	var opt = null;
-    	var url = "";
-    	const ipcRenderer = require('electron').ipcRenderer;
-    // 	ipcRenderer.on('recv_config', (event, arg) => {
-    // 		// console.log(arg) // prints "pong"
-    // 		config = arg;
-    // 		// init();
-  		// })
-  		// ipcRenderer.send('send_config', 'ping');
+    	// var paylog = new Array();
+    	// var paylogMaxLen = 2;
+
   		
   		function countSecond(){
-  			parent.
-		    $.ajax({ url: "http://"+config.WebAddr+":"+config.WebPort+"/rpc",
-				type:"POST",
-				headers:{'Content-Type':'application/json;charset=utf8','user':config.RpcUser,"password":config.RpcPassword},
-				data:`{"method":"getinfo"}`,
-				// async:false,
-				dateType:'json',
-				// context: document.body, 
-				success: function(data){
-				// $(this).addClass("done");
-					// console.log(data);
-					// console.log(data.result.CurrentBlock);
-					// console.log(data.result.HighestBlock);
+  			window.top.postNode(true, `{"method":"getinfo"}`,function(data){
+				// console.log(data);
+            	$("#chain_height").text(data.result.CurrentBlock);
+				$("#new_height").text(data.result.HighestBlock);
+				var calculator=new Calculator();
+				var x = calculator.divide(data.result.balance, 100000000);
+				$("#chain_balance").text(x);
 
-					$("#chain_height").text(data.result.CurrentBlock);
-					$("#new_height").text(data.result.HighestBlock);
-					var calculator=new Calculator();
-					var x = calculator.divide(data.result.balance, 100000000);
-					$("#chain_balance").text(x);
+				var percent = data.result.CurrentBlock / data.result.HighestBlock * 100;
+				// console.log(percent);
 
-					var percent = data.result.CurrentBlock / data.result.HighestBlock * 100;
-					// console.log(percent);
-
-					$('.ui.progress').progress("set percent", percent);
+				$('.ui.progress').progress("set percent", percent);
 
 
-					percent = $('.ui.progress').progress("get percent");
-					if(percent == 100){
-						$('.ui.progress').progress("set label", "区块同步完成");
+				percent = $('.ui.progress').progress("get percent");
+				if(percent == 100){
+					$('.ui.progress').progress("set label", "区块同步完成");
+				}else{
+					$('.ui.progress').progress("set label", "正在同步区块...");
+				}
+            });
+
+  			//查询交易历史记录
+            window.top.postNode(true, `{"method":"gettransactionhistory"}`,function(data){
+				console.log(data);
+				var items = $("#pay_log .item");
+				console.log(items.length);
+				//获取能显示的历史记录条数
+				var actualLength = data.result.length;
+				if(actualLength > items.length){
+					actualLength = items.length;
+				}
+
+				//截取用于显示的历史记录
+				var historys = new Array();
+				for(var i=0; i<actualLength; i++){
+					historys.push(data.result[i]);
+				}
+				//构造足够的div用于显示历史记录
+				for(var i=0,len=items.length; i < len; i++){
+					if(i < actualLength){
+						$(items[i]).css("display", "block");
+						// console.log(i,"显示")
+						var one = historys[i];
+						var icon = "plus";
+						var symbol = "+";
+						var color = "green";
+						if(!one.IsIn){
+							icon = "minus";
+							symbol = "-";
+							color = "red";
+						}else{
+							$($("#pay_log .item .paylog_addr")[i]).text(one.InAddr[0]);
+						}
+						$(items[i]).removeClass("green");
+						$(items[i]).removeClass("red");
+						$(items[i]).addClass(color);
+
+						var iconDiv = $($("#pay_log .item .icon")[i])
+						iconDiv.removeClass("plus");
+						iconDiv.removeClass("minus");
+						iconDiv.addClass(icon);
+
+						var calculator=new Calculator();
+						var x = calculator.divide(one.Value, 100000000);
+
+						$($("#pay_log .item .paylog_value")[i]).text(symbol+x);
+						// $(items[i]).children("p").text(one.Value);
+
+
 					}else{
-						$('.ui.progress').progress("set label", "正在同步区块...");
+						$(items[i]).css("display", "none");
+						// console.log(i,"不显示")
 					}
-					// $('.ui.progress').progress("set bar label", "同步{value} / 最新{total}");
-					// console.log(percent);
 
 
+					// $("#pay_log").append(`		  <div class="item ui green message">
+					// 	  	<i class="plus icon"></i>
+					// 	    <div class="content">
+					// 	    	<div class="ui grid">
+					// 				<div class="eight wide column">
+					// 					<div>2018.3.25</div>
+					// 				</div>
+					// 				<div class="eight wide column">
+					// 					<div class="paylog_value">+100.00000000</div>
+					// 				</div>
+					// 			</div>
+					// 			<div>转账</div>
+					// 			<div>u3wSqjGN9e6HzgsPxoiCg2c6PmjgQeyC</div>
+					// 	    </div>
+					// 	  </div>`);
+				}
 
-				}});
-		    setTimeout("countSecond()", 1000)
+				
+				//删除多余的记录
+				// for(paylog.length > paylogMaxLen){
+				// 	var one = paylog.shift();
+
+				// }
+
+
+            	
+            });
+
+
+		  
+		    setTimeout("countSecond()", 5000)
 		}
   	// 	function init(){
   	// 		opt = { url: url,
@@ -103,7 +164,7 @@
     	// });
 	// var api = "";
 	$(document).ready(function() {
-		config = ipcRenderer.sendSync('send_config', 'ping');
+		// config = ipcRenderer.sendSync('send_config', 'ping');
 		
 		// 执行函数
 		countSecond()
@@ -140,7 +201,7 @@
 	});
 	</script>
 </head>
-<body>
+<body style="overflow-y: hidden;">
 
 	
 
@@ -151,13 +212,13 @@
 
 
 <div class="ui inverted menu">
-  <a id="home" href="./wallet.html" onclick="" class="active item">概况</a>
-  <a id="payout" href="./wallet_payout.html" class="item">转账</a>
-  <a id="address" href="./wallet_address.html" class="item">收款地址</a>
-  <a id="paylog" href="./wallet_paylog.html" class="item">交易记录</a>
-  <a id="witness" href="./wallet_witness.html" class="item">见证人</a>
-  <a id="names" href="./wallet_name.html" class="item">域名</a>
-  <a id="pwd" href="./wallet_pwd.html" class="item">密码</a>
+	<a id="home" href="./wallet.html" onclick="" class="active item">概况</a>
+	<a id="payout" href="./wallet_payout.html" class="item">转账</a>
+	<a id="address" href="./wallet_address.html" class="item">收款地址</a>
+	<a id="paylog" href="./wallet_paylog.html" class="item">交易记录</a>
+	<a id="witness" href="./wallet_witness.html" class="item">见证人</a>
+	<a id="names" href="./wallet_name.html" class="item">域名</a>
+	<a id="pwd" href="./wallet_pwd.html" class="item">密码</a>
 </div>
 
 <div style="margin:0 20px 0 20px;">
@@ -165,11 +226,11 @@
 
 
 <div class="ui green progress" data-value="1" data-total="200">
-  <div class="bar">
-    <div class="progress"></div>
-  </div>
-  <div class="label">正在与网络同步... 当前高度：<a id="chain_height" href="">50</a>/最新高度：<a id="new_height" href="">50</a></div>
-  <!-- <div class="label">正在与网络同步... 当前高度：50/最新高度：100</div> -->
+	<div class="bar">
+		<div class="progress"></div>
+	</div>
+	<div class="label">正在与网络同步... 当前高度：<a id="chain_height" href="">50</a>/最新高度：<a id="new_height" href="">50</a></div>
+	<!-- <div class="label">正在与网络同步... 当前高度：50/最新高度：100</div> -->
 </div>
 
 <div class="ui grid">
@@ -180,9 +241,9 @@
 	</div>
 	<div class="eight wide column">
 		<h3 class="ui header">最近交易</h3>
-		<div class="ui list">
+		<div id="pay_log" class="ui list">
 
-		  <div class="item ui red message">
+		  <div class="item ui red message" style="display: none;">
 		  	<i class="minus icon"></i>
 		    <div class="content">
 		    	<div class="ui grid">
@@ -190,15 +251,15 @@
 						<div>2018.3.25</div>
 					</div>
 					<div class="eight wide column">
-						<div>-100.00000000</div>
+						<div class="paylog_value"><p>-100.00000000</p></div>
 					</div>
 				</div>
 				<div>转账</div>
-				<div>u3wSqjGN9e6HzgsPxoiCg2c6PmjgQeyC</div>
+				<div class="paylog_addr">u3wSqjGN9e6HzgsPxoiCg2c6PmjgQeyC</div>
 		    </div>
 		  </div>
 
-		  <div class="item ui green message">
+		  <div class="item ui green message" style="display: none;">
 		  	<i class="plus icon"></i>
 		    <div class="content">
 		    	<div class="ui grid">
@@ -206,15 +267,15 @@
 						<div>2018.3.25</div>
 					</div>
 					<div class="eight wide column">
-						<div>+100.00000000</div>
+						<div class="paylog_value">+100.00000000</div>
 					</div>
 				</div>
 				<div>转账</div>
-				<div>u3wSqjGN9e6HzgsPxoiCg2c6PmjgQeyC</div>
+				<div class="paylog_addr">u3wSqjGN9e6HzgsPxoiCg2c6PmjgQeyC</div>
 		    </div>
 		  </div>
 
-		  <div class="item ui green message">
+		  <div class="item ui green message" style="display: none;">
 		  	<i class="plus icon"></i>
 		    <div class="content">
 		    	<div class="ui grid">
@@ -222,15 +283,15 @@
 						<div>2018.3.25</div>
 					</div>
 					<div class="eight wide column">
-						<div>+100.00000000</div>
+						<div class="paylog_value">+100.00000000</div>
 					</div>
 				</div>
 				<div>转账</div>
-				<div>u3wSqjGN9e6HzgsPxoiCg2c6PmjgQeyC</div>
+				<div class="paylog_addr">u3wSqjGN9e6HzgsPxoiCg2c6PmjgQeyC</div>
 		    </div>
 		  </div>
 
-		  <div class="item ui green message">
+		  <div class="item ui green message" style="display: none;">
 		  	<i class="plus icon"></i>
 		    <div class="content">
 		    	<div class="ui grid">
@@ -238,11 +299,59 @@
 						<div>2018.3.25</div>
 					</div>
 					<div class="eight wide column">
-						<div>+100.00000000</div>
+						<div class="paylog_value">+100.00000000</div>
 					</div>
 				</div>
 				<div>见证人奖励</div>
-				<div>u3wSqjGN9e6HzgsPxoiCg2c6PmjgQeyC</div>
+				<div class="paylog_addr">u3wSqjGN9e6HzgsPxoiCg2c6PmjgQeyC</div>
+		    </div>
+		  </div>
+
+		  <div class="item ui green message" style="display: none;">
+		  	<i class="plus icon"></i>
+		    <div class="content">
+		    	<div class="ui grid">
+					<div class="eight wide column">
+						<div>2018.3.25</div>
+					</div>
+					<div class="eight wide column">
+						<div class="paylog_value">+100.00000000</div>
+					</div>
+				</div>
+				<div>见证人奖励</div>
+				<div class="paylog_addr">u3wSqjGN9e6HzgsPxoiCg2c6PmjgQeyC</div>
+		    </div>
+		  </div>
+
+		  <div class="item ui green message" style="display: none;">
+		  	<i class="plus icon"></i>
+		    <div class="content">
+		    	<div class="ui grid">
+					<div class="eight wide column">
+						<div>2018.3.25</div>
+					</div>
+					<div class="eight wide column">
+						<div class="paylog_value">+100.00000000</div>
+					</div>
+				</div>
+				<div>见证人奖励</div>
+				<div class="paylog_addr">u3wSqjGN9e6HzgsPxoiCg2c6PmjgQeyC</div>
+		    </div>
+		  </div>
+
+		  <div class="item ui green message" style="display: none;">
+		  	<i class="plus icon"></i>
+		    <div class="content">
+		    	<div class="ui grid">
+					<div class="eight wide column">
+						<div>2018.3.25</div>
+					</div>
+					<div class="eight wide column">
+						<div class="paylog_value">+100.00000000</div>
+					</div>
+				</div>
+				<div>见证人奖励</div>
+				<div class="paylog_addr">u3wSqjGN9e6HzgsPxoiCg2c6PmjgQeyC</div>
 		    </div>
 		  </div>
 		  

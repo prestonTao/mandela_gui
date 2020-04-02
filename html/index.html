@@ -63,8 +63,11 @@
 		        console.log(data);
 		        if(data.code != 2000){
 		            return;
-		        } 
+		        }
+		        console.log("111111111");
+		        if(data.result == null){return}
 		        firends = data.result;
+		    	console.log("222222222222");
 		        for(var i=data.result.length; i > 0; i--){
                     var obj = data.result[i-1];
                     var name = obj.NodeId;
@@ -92,29 +95,30 @@
 		}
 
 
-		var newmsgCallbackDefault = function(data){
-	    	//先判断好友列表中是否有这个好友
-	    	var have = false;
-	    	for(var i=0,len=firends.length; i<len; i++){
-	    		var one = firends[i];
-	    		if(one.Id == data.Id){
-	    			have = true
-	    			break;
-	    		}
-	    	}
-	    	if(!have){
-	    		$("#friends").css("background-color", "#ff8547");
+		// var newmsgCallbackDefault = function(data){
+	 //    	//先判断好友列表中是否有这个好友
+	 //    	var have = false;
+	 //    	for(var i=0,len=firends.length; i<len; i++){
+	 //    		var one = firends[i];
+	 //    		if(one.Id == data.Id){
+	 //    			have = true
+	 //    			break;
+	 //    		}
+	 //    	}
+	 //    	if(!have){
+	 //    		$("#friends").css("background-color", "#ff8547");
 	    		
-	    		// $("#friends").addClass("nav_active_bgcolor");
-	    	}
+	 //    		// $("#friends").addClass("nav_active_bgcolor");
+	 //    	}
 
 
-	    }
+	 //    }
 		/*
 		    循环获取消息
 		*/
 		var newmsgCallback = null;
 		function loopGetMeg(){
+			console.log("loopGetMeg");
 		    postNode(true, `{"method":"getnewmsg"}`,function(data){
 		    	loopGetMeg();
 		        console.log(data);
@@ -132,6 +136,27 @@
 		        // console.log("end");
 		    });
 		    // setTimeout("loopGetMeg()", 1000);
+		}
+
+		function setNewMsgCallBack(){
+			newmsgCallback = function(data){
+				console.log("触发首页新消息处理方法");
+		    	//先判断好友列表中是否有这个好友
+		    	var have = false;
+		    	for(var i=0,len=firends.length; i<len; i++){
+		    		var one = firends[i];
+		    		if(one.NodeId == data.Id){
+		    			have = true
+		    			break;
+		    		}
+		    	}
+		    	console.log("index 打印是否有这个好友 "+have);
+		    	if(have){
+		    		$("#im").css("background-color", "#ff8547");
+		    	}else{
+		    		$("#friends").css("background-color", "#ff8547");
+		    	}
+		    }
 		}
 
 		/*
@@ -156,7 +181,7 @@
 
 
 		$(document).ready(function() {
-			newmsgCallback = newmsgCallbackDefault;
+			setNewMsgCallBack();
 			// $('.ui.labeled.icon.sidebar')
 			//     .sidebar('toggle')
 			//     .sidebar('attach events', '.nav_bt');
@@ -194,39 +219,51 @@
 		    // loopGetMeg(newmsgCallback);
 
 		    $("#browser").click(function(){
-		        $('#index_content_embed').attr("src", "./wallet/wallet.html");
+		    	setNewMsgCallBack();
+		        $('#index_content_embed').attr("src", "./browser/browser.html");
 		        $(".active").removeClass("active");
 		        $('#browser').addClass("active");
+		        $("#browser").removeAttr("style");
 		        return false;
 		    });
 		    $("#im").click(function(){
+		    	setNewMsgCallBack();
 		        $('#index_content_embed').attr("src", "./im/im.html");
 		        $(".active").removeClass("active");
 		        $('#im').addClass("active");
+		        $("#im").removeAttr("style");
 		        return false;
 		    });
 		    $("#friends").click(function(){
+		    	setNewMsgCallBack();
 		        $('#index_content_embed').attr("src", "./firends/firends_list.html");
 		        $(".active").removeClass("active");
 		        $('#friends').addClass("active");
+		        $("#friends").removeAttr("style");
 		        return false;
 		    });
 		    $("#files").click(function(){
+		    	setNewMsgCallBack();
 		        $('#index_content_embed').attr("src", "./files/files_store.html");
 		        $(".active").removeClass("active");
 		        $('#files').addClass("active");
+		        $("#files").removeAttr("style");
 		        return false;
 		    });
 		    $("#wallet").click(function(){
+		    	setNewMsgCallBack();
 		        $('#index_content_embed').attr("src", "./wallet/wallet.html");
 		        $(".active").removeClass("active");
 		        $('#wallet').addClass("active");
+		        $("#wallet").removeAttr("style");
 		        return false;
 		    });
 		    $("#wrench").click(function(){
+		    	setNewMsgCallBack();
 		        $('#index_content_embed').attr("src", "./info_self.html");
 		        $(".active").removeClass("active");
 		        $('#wrench').addClass("active");
+		        $("#wrench").removeAttr("style");
 		        return false;
 		    });
 
@@ -272,7 +309,7 @@
 
 
 			<div style="width:calc(100vw - 74px);height:calc(100vh - 42px); border:red solid 0px;">
-				<iframe id="index_content_embed" width="100%" height="100%" src="./firends/firends_list.html" style="border:red solid 0px;"></iframe>
+				<iframe id="index_content_embed" width="100%" height="100%" src="./im/im.html" style="border:red solid 0px;"></iframe>
 			</div>
 		</div>
 	</div>

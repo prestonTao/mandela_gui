@@ -35,13 +35,15 @@
         /*
             新消息回调方法
         */
-        function newMsgCallBack(){
+        // function newMsgCallBack(){
             
-        }
+        // }
 
 
         $(document).ready(function() {
-            window.top.newmsgCallback = 
+            // window.top.newmsgCallback = function(data){
+            //     console.log("有新消息");
+            // }
 
         
             window.parent.postNode(true, `{"method":"getfriendlist"}`,function(data){
@@ -49,6 +51,7 @@
                 console.log(data);
                 // flashStoreSize();
                 // console.log("222");
+                if(data.result == null){return}
                 for(var i=0,len=data.result.length; i < len; i++){
                     var obj = data.result[i];
                     var name = obj.NodeId;
@@ -61,11 +64,16 @@
                     if(obj.IsAdd == 1 && obj.Status == 2){
                         continue
                     }
+                    //如果名称太长，则截取
+                    var namelen = 16;
+                    if(name.length > namelen){
+                        name = name.substring(0,namelen);
+                        name = name + "...";
+                    }
                     $("#firends_list").append(`            <a class="item firendone">
                             <span class="netid" style="display: none;">`+obj.NodeId+`</span>
                             <img class="ui middle aligned mini image" src="../img/touxiang.jpg">
                             <span>`+name+`</span>
-                            <div class="ui red mini circular label">999</div>
                         </a>`);
                 }
                 addEvent();

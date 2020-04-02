@@ -44,6 +44,7 @@
                 console.log(data);
                 // flashStoreSize();
                 // console.log("222");
+                if(data.result == null){return}
                 for(var i=data.result.length; i > 0; i--){
                     var obj = data.result[i-1];
                     var name = obj.NodeId;
@@ -57,7 +58,6 @@
                     if(obj.IsAdd != 1){
                         continue
                     }
-                    console.log(obj.NodeId);
                     if(obj.Status == 3){
                         $("#new_firends_list").append(`    <div class="item">
                                 <div class="right floated content">

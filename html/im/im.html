@@ -67,13 +67,72 @@
                 $("#im_message_embed").attr("src","msg_content.html");
                 // window.frames["iframe_ID"].document
                 // console.log("3333333333333");
+                $(this).children(".circular").remove();
             });
 
 
         }
 
+        /*
+			查询好友未读消息
+        */
+        function findHistoryMsgLog(nodeid){
+			window.top.postNode(true, `{"method":"getmsghistory","params":{"recipient":"`+nodeid+`","id":0}}`,function(data){
+				console.log(data);
+                for(var i=0,len=data.result.length; i<len; i++){
+                	var one = data.result[i];
+                	if(one.Read == 1){
+                		$("#nodeid_"+one.Sender).append(`<div class="ui red empty circular label"></div>`);
+                		break
+                	}
+                }
+            });
+
+        }
+
 
 		$(document).ready(function() {
+
+			//接管新消息方法
+			window.top.newmsgCallback = function(data){
+				console.log(data);
+		    	//先判断好友列表中是否有这个好友
+		    	var have = false;
+		    	// console.log("遍历index中的 firends");
+		    	for(var i=0,len=window.top.firends.length; i<len; i++){
+		    		var one = window.top.firends[i];
+		    		// console.log(one);
+		    		if(one.NodeId == data.Id){
+		    			have = true
+		    			break;
+		    		}
+		    	}
+		    	// console.log("im 打印是否有这个好友 "+have);
+		    	if(have){
+		    		console.log("查看是否选中", selectFirendNetid , data.Id);
+		    		//判断是否打开了好友的聊天窗口
+		    		if(selectFirendNetid != data.Id){
+		    			//未打开就添加小红点提示
+		    			console.log("未选中"+"#nodeid_"+data.Id);
+		    			console.log($("#nodeid_"+data.Id+".circular"))
+		    			if($("#nodeid_"+data.Id+" .red .circular").length <= 0){
+		    				console.log("不存在");
+		    				$("#nodeid_"+data.Id).append(`<div class="ui red empty circular label"></div>`);
+		    			}
+		    			return
+		    		}
+		    		// $("#friends").css("background-color", "#ff8547");
+		    		
+		    		// $("#friends").addClass("nav_active_bgcolor");
+		    		var time = data.Time;
+					time = time.replace(/-/g,':').replace(' ',':'); // 注意，第二个replace里，是' '，中间有个空格，千万不能遗漏
+					time = time.split(':');
+					var time1 = new Date(time[0],(time[1]-1),time[2],time[3],time[4],time[5]);
+					var timestamp = Date.parse(time1);
+		    		var msgContentFrame = document.getElementById('im_message_embed').contentWindow;
+		    		msgContentFrame.addMsgLog(false, data.Content, timestamp/1000);
+		    	}
+		    }
 
 			var netid = getUrlParams("netid")
 			if(netid != null && netid != ""){
@@ -95,12 +154,19 @@
                     if(obj.Notename != ""){
                         name = obj.Notename;
                     }
-                    $("#firends_list").append(`<a class="item firend_one">
+                    //如果名称太长，则截取
+                    var namelen = 16;
+                    if(name.length > namelen){
+                    	name = name.substring(0,namelen);
+                    	name = name + "...";
+                    }
+                    $("#firends_list").append(`<a id="nodeid_`+obj.NodeId+`" class="item firend_one">
                     		<span class="netid" style="display: none;">`+obj.NodeId+`</span>
 							<img class="ui middle aligned mini image" src="../img/touxiang.jpg">
 							<span>`+name+`</span>
-							<div class="ui red mini circular label">999</div>
 						</a>`);
+                    findHistoryMsgLog(obj.NodeId);
+
                 }
                 addEvent();
 
@@ -124,6 +190,12 @@
 		    	window.parent.postNode(true, `{"method":"sendmsg","params":{"address":"`+selectFirendNetid+`","content":"`+text+`"}}`,function(data){
 		    		if(data.code == 2000){
 		    			editor.txt.clear()
+		    			var msgContentFrame = document.getElementById('im_message_embed').contentWindow;
+		    			msgContentFrame.addMsgLog(true, text);
+
+
+		    			// window.frames["im_message_embed"].addMsgLog(true, text);
+
 		    		}
 		    	});
 		    });
